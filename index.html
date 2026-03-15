@@ -254,16 +254,16 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
       </div>
     </div>
 
-    <!-- SCHEDULE -->
-    <div class="schedule-row" style="flex-wrap:wrap">
-      <label class="schedule-toggle" onclick="toggleSchedule()">
-        <div class="toggle-track" id="scheduleToggle"><div class="toggle-dot"></div></div>
-        Daily Auto-Email
-      </label>
-      <div class="schedule-time" id="scheduleTimeWrap" style="display:none">
-        <label class="email-label" style="margin:0">Send at:</label>
-        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:120px" onchange="if(scheduleActive)startSchedule()">
+    <!-- SCHEDULE: Step 1 = Set time, Step 2 = Toggle ON -->
+    <div class="schedule-row" style="flex-wrap:wrap;align-items:center">
+      <div class="schedule-time" style="display:flex;align-items:center;gap:8px">
+        <label class="email-label" style="margin:0">Schedule Time:</label>
+        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:130px" onchange="if(scheduleActive)startSchedule()">
       </div>
+      <label class="schedule-toggle" onclick="toggleSchedule()" style="margin-left:16px">
+        <div class="toggle-track" id="scheduleToggle"><div class="toggle-dot"></div></div>
+        Enable Daily Auto-Email
+      </label>
     </div>
     <div id="scheduleStatus" style="display:none" class="schedule-status">
       <span class="dot"></span> Schedule ACTIVE — sending at <strong id="nextSendTime">09:00 AM</strong>
@@ -633,16 +633,13 @@ function renderEmailPreview(){
 function toggleSchedule(){
   scheduleActive=!scheduleActive;
   const track=document.getElementById('scheduleToggle');
-  const timeWrap=document.getElementById('scheduleTimeWrap');
   const statusEl=document.getElementById('scheduleStatus');
   if(scheduleActive){
     track.classList.add('on');
-    timeWrap.style.display='flex';
     statusEl.style.display='flex';
     startSchedule();
   }else{
     track.classList.remove('on');
-    timeWrap.style.display='none';
     statusEl.style.display='none';
     if(scheduleTimer){clearInterval(scheduleTimer);scheduleTimer=null}
     if(window.scheduleWorker){window.scheduleWorker.terminate();window.scheduleWorker=null}
