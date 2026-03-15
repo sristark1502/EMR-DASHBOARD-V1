@@ -209,6 +209,29 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
   </div>
   <div class="pagination" id="pagination"></div>
 
+  <!-- MATERIAL REQUIRED PANEL -->
+  <div id="materialPanel" style="margin-top:24px;border:1.5px solid rgba(245,127,23,0.3);border-radius:16px;background:var(--bg-card);padding:24px;animation:fadeUp 0.5s ease 0.4s both">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="section-title" style="color:#F59E0B;margin:0">&#128230; Material Required (Pending Sites Only)</div>
+      <span id="materialCount" style="font-size:12px;color:var(--text-muted)"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:rgba(245,158,11,0.12)">
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Sr. No</th>
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Company</th>
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Location</th>
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Issue</th>
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Material Required</th>
+            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Engineer</th>
+          </tr>
+        </thead>
+        <tbody id="materialBody"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- EMAIL PANEL -->
   <div id="emailPanel" class="email-panel" style="display:none">
     <div class="email-panel-title">
@@ -219,11 +242,11 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
     <div class="email-config">
       <div>
         <label class="email-label">Manager Email *</label>
-        <input class="email-input" id="managerEmail" placeholder="manager@emr.com" value="">
+        <input class="email-input" id="managerEmail" placeholder="manager@emr.com" value="j.sudhakar@emr.global">
       </div>
       <div>
         <label class="email-label">CC (optional)</label>
-        <input class="email-input" id="ccEmail" placeholder="team@emr.com">
+        <input class="email-input" id="ccEmail" placeholder="team@emr.com" value="SHREELANJ@emr.global,service@emr.global">
       </div>
       <div>
         <label class="email-label">Your Name</label>
@@ -232,7 +255,7 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
     </div>
 
     <!-- SCHEDULE -->
-    <div class="schedule-row">
+    <div class="schedule-row" style="flex-wrap:wrap">
       <label class="schedule-toggle" onclick="toggleSchedule()">
         <div class="toggle-track" id="scheduleToggle"><div class="toggle-dot"></div></div>
         Daily Auto-Email
@@ -261,6 +284,7 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
         Send Now via Gmail
       </button>
       <button class="btn-outline" onclick="copyEmailHTML()" style="border-color:rgba(26,115,232,0.4);color:#5e9cff">Copy HTML</button>
+      <button class="btn-outline" onclick="testSchedule()" style="border-color:rgba(74,222,128,0.4);color:#4ade80">Test Schedule Now</button>
       <button class="btn-cancel" onclick="closeEmailPanel()">Close</button>
     </div>
   </div>
@@ -487,16 +511,22 @@ function getFiltered(){const q=document.getElementById('searchInput').value.toLo
 // ===== EMAIL HTML GENERATOR =====
 function generateEmailHTML(){
   const pending=complaints.filter(c=>c.status==='Pending');
-  const materialItems=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='');
+  const materialItems=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
   const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const senderName=document.getElementById('senderName')?.value||'Service Team';
 
   let html=`
   <div style="font-family:'Segoe UI',Tahoma,sans-serif;max-width:700px;margin:0 auto;background:#fff">
-    <div style="background:linear-gradient(135deg,#BE1E2D,#8B1520);padding:24px 30px;border-radius:12px 12px 0 0">
-      <table width="100%"><tr>
-        <td><span style="font-family:'Arial Black',Impact,sans-serif;font-size:28px;color:#fff;letter-spacing:-2px">EM</span><span style="font-family:'Arial Black',Impact,sans-serif;font-size:28px;color:#ddd;letter-spacing:-1px">R</span></td>
-        <td style="text-align:right"><div style="color:#fff;font-size:16px;font-weight:700">Daily Service Report</div><div style="color:#ffcdd2;font-size:12px;margin-top:4px">${today}</div></td>
+    <div style="background:linear-gradient(135deg,#BE1E2D,#8B1520);padding:20px 30px;border-radius:12px 12px 0 0">
+      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td style="width:220px;vertical-align:middle">
+          <span style="font-family:'Arial Black',Impact,sans-serif;font-size:36px;color:#ffffff;letter-spacing:-2px;font-weight:900">EM</span><span style="font-family:'Arial Black',Impact,sans-serif;font-size:36px;color:#cccccc;letter-spacing:-1px;font-weight:900">R</span>
+          <div style="color:#ffffff;font-size:10px;font-weight:600;letter-spacing:1.5px;margin-top:2px;opacity:0.9">TAP CHANGERS PVT. LTD.</div>
+        </td>
+        <td style="text-align:right;vertical-align:middle">
+          <div style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.5px">DAILY BRC STATUS REPORT</div>
+          <div style="color:#ffffff;font-size:13px;margin-top:6px;font-weight:600;opacity:0.95">${today}</div>
+        </td>
       </tr></table>
     </div>
     <div style="padding:24px 30px;border:1px solid #e0e0e0;border-top:none">
@@ -565,9 +595,9 @@ function generateEmailHTML(){
   }
 
   html+=`
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center">
-        <div>EMR Tap Changers Pvt. Ltd. — Gujarat Service Division</div>
-        <div style="margin-top:4px">Report generated on ${today} by ${senderName}</div>
+      <div style="margin-top:20px;padding-top:16px;border-top:2px solid #BE1E2D;text-align:center">
+        <div style="font-size:12px;color:#BE1E2D;font-weight:700;letter-spacing:1px">EMR Tap Changers Private Limited</div>
+        <div style="font-size:10px;color:#999;margin-top:4px">Formerly EASUN MR — Gujarat Service Division</div>
       </div>
     </div>
   </div>`;
@@ -593,7 +623,7 @@ function closeEmailPanel(){document.getElementById('emailPanel').style.display='
 
 function renderEmailPreview(){
   const pending=complaints.filter(c=>c.status==='Pending').length;
-  const matl=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='').length;
+  const matl=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='').length;
   document.getElementById('previewCount').textContent=pending+' pending, '+matl+' material items';
   document.getElementById('emailPreview').innerHTML=generateEmailHTML();
 }
@@ -624,14 +654,27 @@ function startSchedule(){
   const h12=parseInt(h)%12||12;
   document.getElementById('nextSendTime').textContent=h12+':'+m+' '+ampm;
   if(scheduleTimer)clearInterval(scheduleTimer);
+  // Pre-authenticate Gmail so scheduled send works without popup
+  getGmailToken().then(()=>{notify('\u2713 Gmail connected! Daily email scheduled at '+h12+':'+m+' '+ampm)}).catch(()=>{notify('\u26A0 Please sign in to Gmail first — click Send Now once')});
+  let lastSentDate='';
   scheduleTimer=setInterval(()=>{
     const now=new Date();
-    const nowTime=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-    if(nowTime===timeVal&&now.getSeconds()<2){
+    const nowH=String(now.getHours()).padStart(2,'0');
+    const nowM=String(now.getMinutes()).padStart(2,'0');
+    const todayStr=now.toDateString();
+    // Send if time matches AND haven't sent today yet
+    if(nowH===h&&nowM===m&&lastSentDate!==todayStr){
+      lastSentDate=todayStr;
+      console.log('[EMR Schedule] Triggering auto-email at '+nowH+':'+nowM);
       sendEmailNow();
+      // Update next send time display
+      const tomorrow=new Date(now.getTime()+86400000);
+      document.getElementById('nextSendTime').textContent=h12+':'+m+' '+ampm+' (tomorrow)';
     }
-  },1000);
-  notify('Daily email scheduled at '+h12+':'+m+' '+ampm);
+  },5000);
+  // Also update status display
+  const statusEl=document.getElementById('scheduleStatus');
+  if(statusEl)statusEl.style.display='flex';
 }
 
 // ===== GMAIL API =====
@@ -799,7 +842,17 @@ function saveComplaint(){const d={};['companyName','location','customerName','jo
 function deleteComplaint(id){if(!confirm('Delete this complaint?'))return;complaints=complaints.filter(c=>c.id!==id);notify('\u2713 Complaint removed');renderAll()}
 function exportCSV(){const h=["Serial No","Company","Location","Customer","Job Serial","Issue","Action Taken","Status","Planned Date","Completed Date","Engineer","Material Req"];const rows=complaints.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.jobSerialNo,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.completedDate,c.engineerAssigned,c.materialReq]);const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EMR_TapChangers_Gujarat_'+new Date().toISOString().slice(0,10)+'.csv';a.click();notify('\u2713 CSV exported')}
 
-function renderAll(){renderStats();renderWorkload();renderMap();renderFilters();renderTable()}
+function testSchedule(){notify('Testing scheduled email...');sendEmailNow()}
+function renderMaterial(){
+  const items=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
+  document.getElementById('materialCount').textContent=items.length+' items';
+  if(items.length===0){
+    document.getElementById('materialBody').innerHTML='<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted)">No pending material requirements</td></tr>';
+    return;
+  }
+  document.getElementById('materialBody').innerHTML=items.map((c,i)=>'<tr style="border-bottom:1px solid var(--border);background:'+(i%2!==0?'rgba(14,14,17,0.45)':'transparent')+'"><td style="padding:10px;font-family:JetBrains Mono,monospace;font-size:11px;color:#F59E0B">'+c.serialNo+'</td><td style="padding:10px;font-weight:600;color:var(--text-primary)">'+c.companyName+'</td><td style="padding:10px;color:var(--text-secondary)">'+(c.location||'\u2014')+'</td><td style="padding:10px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.issueDescription+'">'+c.issueDescription+'</td><td style="padding:10px;color:#F59E0B;font-weight:600">'+c.materialReq+'</td><td style="padding:10px;color:var(--text-secondary)">'+(c.engineerAssigned||'\u2014')+'</td></tr>').join('');
+}
+function renderAll(){renderStats();renderWorkload();renderMap();renderFilters();renderTable();renderMaterial()}
 renderAll();
 </script>
 </body>
