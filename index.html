@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMR Tap Changers — Gujarat Service Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #BE1E2D; --dark-red: #8B1520; --red-glow: rgba(190,30,45,0.35);
+  --grey: #6E6E6E; --dark-grey: #3A3A3A; --light-grey: #B0B0B0;
+  --bg: #131316; --bg-card: #1c1c22; --bg-dark: #0e0e11; --bg-light: #252530;
+  --text-primary: #f0f0f2; --text-secondary: #a0a0a8; --text-muted: #5a5a66;
+  --border: #2a2a36; --green: #4ade80; --blue: #5b9bd5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg-dark)}::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
+@keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.header{background:linear-gradient(135deg,var(--bg-dark),var(--bg-card));border-bottom:2px solid rgba(190,30,45,0.3);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:16}
+.header-divider{width:1px;height:38px;background:var(--border);margin:0 4px}
+.header-title{font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px}
+.header-sub{font-size:10.5px;color:var(--red);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-top:2px}
+.header-actions{display:flex;gap:10;flex-wrap:wrap}
+
+.btn-primary{background:linear-gradient(135deg,var(--red),var(--dark-red));color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 18px var(--red-glow);font-family:inherit;transition:all 0.2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--red-glow)}
+.btn-outline{background:transparent;color:var(--red);border:1.5px solid rgba(190,30,45,0.4);border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-outline:hover{background:rgba(190,30,45,0.08);border-color:var(--red)}
+.btn-mail{background:linear-gradient(135deg,#1a73e8,#1557b0);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,115,232,0.3);transition:all 0.2s;display:flex;align-items:center;gap:8}
+.btn-mail:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,115,232,0.4)}
+.btn-mail svg{width:16px;height:16px;fill:#fff}
+.btn-small{border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;transition:all 0.15s;border:1px solid}
+.btn-view{background:rgba(110,110,110,0.12);border-color:rgba(110,110,110,0.25);color:var(--light-grey)}
+.btn-view:hover{background:rgba(110,110,110,0.22)}
+.btn-edit{background:rgba(190,30,45,0.08);border-color:rgba(190,30,45,0.2);color:var(--red)}
+.btn-edit:hover{background:rgba(190,30,45,0.18)}
+.btn-del{background:rgba(200,60,60,0.1);border-color:rgba(200,60,60,0.2);color:#cc5e5e}
+.btn-del:hover{background:rgba(200,60,60,0.2)}
+
+.content{padding:24px 28px;max-width:1440px;margin:0 auto}
+.stats-map{display:flex;gap:24;margin-bottom:28;flex-wrap:wrap}
+.stats-col{flex:1 1 420px;display:flex;flex-direction:column;gap:14}
+.stats-row{display:flex;gap:14;flex-wrap:wrap}
+.stat-card{border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14;flex:1;min-width:145;animation:fadeUp 0.5s ease both}
+.stat-card:nth-child(2){animation-delay:0.08s}.stat-card:nth-child(3){animation-delay:0.16s}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.stat-value{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.stat-label{font-size:10.5px;color:var(--text-muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+
+.workload-card{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--bg-card);animation:fadeUp 0.5s ease 0.2s both}
+.section-title{font-size:12px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+.eng-row{display:flex;align-items:center;gap:12;margin-bottom:12}
+.eng-avatar{width:32px;height:32px;border-radius:8px;background:rgba(190,30,45,0.1);border:1px solid rgba(190,30,45,0.18);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace}
+.eng-info{flex:1}.eng-name{font-size:13px;font-weight:600;color:var(--text-primary)}
+.eng-bar{display:flex;gap:3px;margin-top:5px;height:5px;border-radius:3px;overflow:hidden;background:var(--bg-dark)}
+.eng-bar-done{background:var(--green);border-radius:3px}.eng-bar-open{background:var(--red);border-radius:3px}
+.eng-stats{font-size:11px;color:var(--text-muted);white-space:nowrap}.eng-stats .done{color:var(--green)}.eng-stats .open{color:var(--red)}
+
+.map-card{flex:1 1 300px;max-width:420px;border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--bg-card);animation:fadeUp 0.5s ease 0.25s both}
+.filters{display:flex;gap:12;margin-bottom:20;flex-wrap:wrap;align-items:center;animation:fadeUp 0.5s ease 0.3s both}
+.search-input{flex:1 1 240px;max-width:380px;padding:10px 16px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
+.search-input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(190,30,45,0.12)}
+.search-input::placeholder{color:var(--text-muted)}
+.filter-btn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.filter-btn:hover{border-color:rgba(190,30,45,0.4);color:var(--red)}
+.filter-btn.active{border-color:var(--red);background:rgba(190,30,45,0.1);color:var(--red)}
+
+.table-wrap{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--bg-card);animation:fadeUp 0.5s ease 0.35s both}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:linear-gradient(135deg,var(--bg-dark),var(--bg-light))}
+th{padding:14px 12px;text-align:left;color:var(--red);font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;border-bottom:2px solid rgba(190,30,45,0.2);white-space:nowrap}
+td{padding:12px}tr.row-alt{background:rgba(14,14,17,0.45)}
+tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{background:rgba(190,30,45,0.04)}
+.serial{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red)}
+.cell-bold{font-weight:600;color:var(--text-primary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-dim{color:var(--text-secondary)}.cell-mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-secondary)}
+
+.badge{display:inline-block;padding:4px 13px;border-radius:6px;font-size:10.5px;font-weight:800;letter-spacing:0.5px}
+.badge-pending{background:rgba(190,30,45,0.12);color:var(--red);border:1px solid rgba(190,30,45,0.3);animation:pulse 2s infinite}
+.badge-complete{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.25)}
+
+.notification{position:fixed;top:24px;right:24px;z-index:2000;background:var(--bg-card);border:1.5px solid var(--red);border-radius:12px;padding:14px 26px;font-size:14px;font-weight:600;color:var(--red);box-shadow:0 8px 36px rgba(190,30,45,0.25);animation:slideIn 0.3s ease}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:linear-gradient(160deg,var(--bg-dark),var(--bg-card));border:1.5px solid rgba(190,30,45,0.3);border-radius:20px;padding:32px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;animation:slideIn 0.3s ease}
+.modal-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px}
+.modal-serial{font-size:20px;font-weight:800;color:var(--text-primary);margin-top:4px}
+.detail-label{font-size:10px;color:var(--red);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.detail-value{font-size:14px;color:var(--text-primary);line-height:1.5;margin-bottom:16px}
+.btn-close-modal{width:100%;margin-top:8px;background:rgba(190,30,45,0.08);border:1.5px solid rgba(190,30,45,0.3);border-radius:10px;padding:11px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-close-modal:hover{background:rgba(190,30,45,0.15)}
+
+.form-panel{margin-top:28px;background:linear-gradient(160deg,var(--bg-dark),var(--bg-card));border:1.5px solid rgba(190,30,45,0.2);border-radius:20px;padding:32px;animation:slideIn 0.3s ease}
+.form-title{font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px}
+.form-sub{font-size:12px;color:var(--red);margin-bottom:24px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.form-label{font-size:10.5px;font-weight:700;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-dark);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(190,30,45,0.12)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted)}
+.form-select{cursor:pointer}.form-select option{background:var(--bg-dark);color:var(--text-primary)}
+.form-textarea{min-height:70px;resize:vertical}
+.form-actions{display:flex;gap:12px;margin-top:24px}
+.btn-cancel{background:transparent;color:var(--text-muted);border:1.5px solid var(--border);border-radius:10px;padding:12px 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;animation:fadeUp 0.5s ease 0.4s both}
+.page-btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.page-btn:hover{border-color:rgba(190,30,45,0.4);color:var(--red)}
+.page-btn.active{border-color:var(--red);background:rgba(190,30,45,0.1);color:var(--red)}
+.page-btn:disabled{opacity:0.3;cursor:default}
+.page-info{font-size:12px;color:var(--text-muted);margin:0 8px}
+
+/* EMAIL PANEL */
+.email-panel{margin-top:28px;background:linear-gradient(160deg,#0e1428,#151c36);border:1.5px solid rgba(26,115,232,0.25);border-radius:20px;padding:28px;animation:slideIn 0.3s ease}
+.email-panel-title{font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:10}
+.email-panel-sub{font-size:12px;color:#5e9cff;margin-bottom:20px}
+.email-config{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.email-label{font-size:10.5px;font-weight:700;color:#5e9cff;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
+.email-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #2a3560;background:#0e1428;color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
+.email-input:focus{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.15)}
+.email-input::placeholder{color:#4a5580}
+.schedule-row{display:flex;align-items:center;gap:16;margin-top:18px;flex-wrap:wrap}
+.schedule-toggle{display:flex;align-items:center;gap:10;cursor:pointer;font-weight:600;color:var(--text-secondary);font-size:13px}
+.toggle-track{width:44px;height:24px;border-radius:12px;background:#2a3560;position:relative;transition:all 0.3s;cursor:pointer}
+.toggle-track.on{background:#1a73e8}
+.toggle-dot{width:20px;height:20px;border-radius:10px;background:#fff;position:absolute;top:2px;left:2px;transition:all 0.3s}
+.toggle-track.on .toggle-dot{left:22px}
+.schedule-time{display:flex;align-items:center;gap:8}
+.schedule-status{margin-top:14px;padding:12px 16px;border-radius:10px;background:rgba(26,115,232,0.08);border:1px solid rgba(26,115,232,0.2);font-size:12px;color:#5e9cff;display:flex;align-items:center;gap:8}
+.schedule-status .dot{width:8px;height:8px;border-radius:4px;background:#1a73e8;animation:pulse 2s infinite}
+.email-preview{margin-top:20px;border:1px solid #2a3560;border-radius:14px;overflow:hidden}
+.email-preview-header{padding:12px 16px;background:#0a0f1e;display:flex;justify-content:space-between;align-items:center}
+.email-preview-title{font-size:11px;font-weight:700;color:#5e9cff;letter-spacing:1px;text-transform:uppercase}
+.email-preview-body{padding:16px;background:#fff;color:#333;font-size:13px;max-height:300px;overflow-y:auto}
+.email-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite}
+
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);align-items:center}
+.footer-left{display:flex;align-items:center;gap:8}
+
+@media(max-width:768px){.header{padding:14px 16px}.content{padding:16px}.stats-col{flex:1 1 100%}.map-card{max-width:100%}.form-grid,.email-config{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="notification" class="notification" style="display:none"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <svg viewBox="0 0 100 38" style="width:78px;height:30px">
+      <text x="0" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#BE1E2D" letter-spacing="-3">EM</text>
+      <text x="58" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#6E6E6E" letter-spacing="-1">R</text>
+    </svg>
+    <div class="header-divider"></div>
+    <div>
+      <div class="header-title">Tap Changers</div>
+      <div class="header-sub">Service Engineer Dashboard — Gujarat Region</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-primary" onclick="openNewForm()">+ New Complaint</button>
+    <button class="btn-mail" onclick="openEmailPanel()">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Email Report
+    </button>
+    <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="stats-map">
+    <div class="stats-col">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="workload-card">
+        <div class="section-title">Engineer Workload</div>
+        <div id="workloadContent"></div>
+      </div>
+    </div>
+    <div class="map-card">
+      <div class="section-title">Gujarat Service Map</div>
+      <div id="mapContainer"></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search across complaints..." oninput="currentPage=1;renderAll()">
+    <div id="filterBtns"></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Sr. No</th><th>Company</th><th>Location</th><th>Customer</th>
+          <th>Job Serial</th><th>Status</th><th>Planned</th><th>Engineer</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pagination" id="pagination"></div>
+
+  <!-- EMAIL PANEL -->
+  <div id="emailPanel" class="email-panel" style="display:none">
+    <div class="email-panel-title">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="#1a73e8"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Email Pending Report to Manager
+    </div>
+    <div class="email-panel-sub">Send pending complaints &amp; material requirements via Gmail</div>
+    <div class="email-config">
+      <div>
+        <label class="email-label">Manager Email *</label>
+        <input class="email-input" id="managerEmail" placeholder="manager@emr.com" value="">
+      </div>
+      <div>
+        <label class="email-label">CC (optional)</label>
+        <input class="email-input" id="ccEmail" placeholder="team@emr.com">
+      </div>
+      <div>
+        <label class="email-label">Your Name</label>
+        <input class="email-input" id="senderName" placeholder="Vignesh" value="">
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="schedule-row">
+      <label class="schedule-toggle" onclick="toggleSchedule()">
+        <div class="toggle-track" id="scheduleToggle"><div class="toggle-dot"></div></div>
+        Daily Auto-Email
+      </label>
+      <div class="schedule-time" id="scheduleTimeWrap" style="display:none">
+        <label class="email-label" style="margin:0">Send at:</label>
+        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:120px">
+      </div>
+    </div>
+    <div id="scheduleStatus" style="display:none" class="schedule-status">
+      <span class="dot"></span> Daily email scheduled — next send at <strong id="nextSendTime">09:00 AM</strong>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="email-preview">
+      <div class="email-preview-header">
+        <span class="email-preview-title">Email Preview</span>
+        <span style="font-size:11px;color:var(--text-muted)" id="previewCount"></span>
+      </div>
+      <div class="email-preview-body" id="emailPreview"></div>
+    </div>
+
+    <div class="email-actions">
+      <button class="btn-mail" onclick="sendEmailNow()" id="sendBtn">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Send Now via Gmail
+      </button>
+      <button class="btn-outline" onclick="copyEmailHTML()" style="border-color:rgba(26,115,232,0.4);color:#5e9cff">Copy HTML</button>
+      <button class="btn-cancel" onclick="closeEmailPanel()">Close</button>
+    </div>
+  </div>
+
+  <!-- COMPLAINT FORM -->
+  <div id="formPanel" class="form-panel" style="display:none">
+    <div class="form-title" id="formTitle">Register New Complaint</div>
+    <div class="form-sub" id="formSub">Fill in all the details to register a new service complaint</div>
+    <div class="form-grid">
+      <div><label class="form-label">Company Name *</label><input class="form-input" id="f_companyName" placeholder="Company Name"></div>
+      <div><label class="form-label">Location *</label>
+        <select class="form-select" id="f_location"><option value="">Select City</option>
+          <option>Adipur</option>
+          <option>Ahmedabad</option>
+          <option>Ahmedabad Bhavla</option>
+          <option>Ambaji</option>
+          <option>Anand</option>
+          <option>Anjar</option>
+          <option>Baroda</option>
+          <option>Bhavnagar</option>
+          <option>Bhuj</option>
+          <option>Changodar</option>
+          <option>Deesa</option>
+          <option>Dhanera</option>
+          <option>Gandhinagar</option>
+          <option>Halol</option>
+          <option>Himmat Nagar</option>
+          <option>Jamnagar</option>
+          <option>Kadi</option>
+          <option>Karja</option>
+          <option>Karjan</option>
+          <option>Makarpura</option>
+          <option>Morbi</option>
+          <option>Moriya Ahmedabad</option>
+          <option>Nandasan</option>
+          <option>Otha Gujarat</option>
+          <option>Palanpur</option>
+          <option>Por</option>
+          <option>Por Gujarat</option>
+          <option>Rajkot</option>
+          <option>Sanand</option>
+          <option>Savli</option>
+          <option>Surat</option>
+          <option>Surendra Nagar</option>
+          <option>Tharad</option>
+          <option>Vadod</option>
+          <option>Vapi</option>
+          <option>Wagodiya</option>
+        </select>
+      </div>
+      <div><label class="form-label">Customer Name *</label><input class="form-input" id="f_customerName" placeholder="Customer Name"></div>
+      <div><label class="form-label">Job Serial No</label><input class="form-input" id="f_jobSerialNo" placeholder="Job Serial No"></div>
+      <div><label class="form-label">Engineer Assigned</label>
+        <select class="form-select" id="f_engineerAssigned"><option value="">Select Engineer</option>
+          <option>Pandiyan</option>
+          <option>Sathish</option>
+          <option>Vasudevan & Vignesh</option>
+          <option>Vignesh</option>
+          <option>Vignesh & Sridhar</option>
+          <option>Vignesh &Srinivasan</option>
+          <option>Vignesh And Sridhar</option>
+          <option>Vignesh)</option>
+        </select>
+      </div>
+      <div><label class="form-label">Planned Date</label><input class="form-input" type="date" id="f_plannedDate"></div>
+      <div><label class="form-label">Completed Date</label><input class="form-input" type="date" id="f_completedDate"></div>
+      <div><label class="form-label">Material Requirements</label><input class="form-input" id="f_materialReq" placeholder="Material Requirements"></div>
+      <div><label class="form-label">Status</label>
+        <select class="form-select" id="f_status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select>
+      </div>
+    </div>
+    <div style="margin-top:18px"><label class="form-label">Issue Description *</label><textarea class="form-textarea" id="f_issueDescription" placeholder="Describe the issue in detail..."></textarea></div>
+    <div style="margin-top:14px"><label class="form-label">Action Taken</label><textarea class="form-textarea" id="f_actionTaken" placeholder="Describe actions taken so far..." style="min-height:60px"></textarea></div>
+    <div class="form-actions">
+      <button class="btn-primary" onclick="saveComplaint()" id="saveBtn2">Register Complaint</button>
+      <button class="btn-cancel" onclick="closeForm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="modal-overlay" style="display:none" onclick="closeDetail()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div><div class="detail-label">Complaint Detail</div><div class="modal-serial" id="detailSerial"></div></div>
+        <span id="detailBadge"></span>
+      </div>
+      <div id="detailBody"></div>
+      <button class="btn-close-modal" onclick="closeDetail()">Close</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <svg viewBox="0 0 100 38" style="width:60px;height:22px">
+        <text x="0" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#BE1E2D" letter-spacing="-3">EM</text>
+        <text x="58" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#6E6E6E" letter-spacing="-1">R</text>
+      </svg>
+      <span>Tap Changers Pvt. Ltd. — Gujarat Service Division</span>
+    </div>
+    <div>Dashboard v2.0 — Gmail Integrated</div>
+  </div>
+</div>
+
+<!-- Gmail API -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+let complaints = [
+  {id:1,serialNo:'EMR-GJ-2026-001',companyName:'MEIDEN',location:'Deesa',customerName:'Krishna Reddy',jobSerialNo:'108781',issueDescription:'OLTC LEAKAGE  & OLTC DM ADS  ISSUE',actionTaken:'PLANED FOR SITE',status:'Complete',plannedDate:'2025-09-30',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:2,serialNo:'EMR-GJ-2026-002',companyName:'AMNS',location:'Surat',customerName:'Tbea',jobSerialNo:'507805',issueDescription:'OLTC LEAKAGE',actionTaken:'Actions Taken',status:'Complete',plannedDate:'2025-09-25',completedDate:'2025-09-27',engineerAssigned:'Vignesh',materialReq:''},
+  {id:3,serialNo:'EMR-GJ-2026-003',companyName:'ROYAL ELECTRIC',location:'Adipur',customerName:'Manish',jobSerialNo:'507681',issueDescription:'TPI ISSUE',actionTaken:'PLANED FOR SITE',status:'Complete',plannedDate:'2025-11-03',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:4,serialNo:'EMR-GJ-2026-004',companyName:'Voltamp ( Makarpura )',location:'Makarpura',customerName:'Nikhile',jobSerialNo:'',issueDescription:'TDU Design Issue + DM issue',actionTaken:'Discussed and Process going on',status:'Complete',plannedDate:'2025-10-09',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:5,serialNo:'EMR-GJ-2026-005',companyName:'Hitachi Energy',location:'Makarpura',customerName:'Gurupreet Sing',jobSerialNo:'',issueDescription:'OSR pipe Requirements',actionTaken:'Discussed and Process going on',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:6,serialNo:'EMR-GJ-2026-006',companyName:'Hitachi Energy',location:'Makarpura',customerName:'Ajith Save',jobSerialNo:'32058',issueDescription:'Snap action Switch shaft issue',actionTaken:'Waiting for material',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Snap action switch shaft'},
+  {id:7,serialNo:'EMR-GJ-2026-007',companyName:'DEEPAK NILNTE LIMITED',location:'Savli',customerName:'Virendra Surat',jobSerialNo:'',issueDescription:'oltc is continuously running',actionTaken:'PLANED FOR SITE',status:'Complete',plannedDate:'',completedDate:'2025-10-06',engineerAssigned:'Vignesh',materialReq:''},
+  {id:8,serialNo:'EMR-GJ-2026-008',companyName:'Vidyut',location:'Surendra Nagar',customerName:'Jeel',jobSerialNo:'',issueDescription:'AVR need to change',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-03',completedDate:'',engineerAssigned:'Sathish',materialReq:''},
+  {id:9,serialNo:'EMR-GJ-2026-009',companyName:'Schneider Electrical',location:'Halol',customerName:'Vipin',jobSerialNo:'1000202',issueDescription:'Sl.no plate change',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-06',completedDate:'2025-10-06',engineerAssigned:'Vignesh',materialReq:''},
+  {id:10,serialNo:'EMR-GJ-2026-010',companyName:'TMC',location:'Halol',customerName:'Sanjeev Sing',jobSerialNo:'',issueDescription:'Ratio Test issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-07',completedDate:'',engineerAssigned:'Sathish',materialReq:''},
+  {id:11,serialNo:'EMR-GJ-2026-011',companyName:'Torrent power Surat',location:'Surat',customerName:'Kishore',jobSerialNo:'',issueDescription:'MCB tripping issue',actionTaken:'08.10.2025 Visited And found Returning Spring was damged need to Change the Returning Spring',status:'Complete',plannedDate:'2025-10-17',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:12,serialNo:'EMR-GJ-2026-012',companyName:'Hitachi',location:'Makarpura',customerName:'Gurupreet',jobSerialNo:'',issueDescription:'Adani Job Door Hinges',actionTaken:'Planed',status:'Pending',plannedDate:'2025-10-09',completedDate:'',engineerAssigned:'Vignesh',materialReq:'waiting for material'},
+  {id:13,serialNo:'EMR-GJ-2026-013',companyName:'Voltamp',location:'Savli',customerName:'Kowshic',jobSerialNo:'',issueDescription:'CTR Job Inspection',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-10',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:14,serialNo:'EMR-GJ-2026-014',companyName:'Hitachi',location:'Ahmedabad',customerName:'Gurupreet',jobSerialNo:'',issueDescription:'OCTC inspection',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-14',completedDate:'',engineerAssigned:'Vignesh And Sridhar',materialReq:''},
+  {id:15,serialNo:'EMR-GJ-2026-015',companyName:'Nakshatra Infracon',location:'Gandhinagar',customerName:'Govind',jobSerialNo:'',issueDescription:'Dvac Issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-13',completedDate:'',engineerAssigned:'Vignesh & Sridhar',materialReq:''},
+  {id:16,serialNo:'EMR-GJ-2026-016',companyName:'Schneider Electrical',location:'Halol',customerName:'Vipin',jobSerialNo:'',issueDescription:'L-Type Indication issue',actionTaken:'Solved Via Video Call',status:'Complete',plannedDate:'2025-10-14',completedDate:'',engineerAssigned:'Vignesh)',materialReq:''},
+  {id:17,serialNo:'EMR-GJ-2026-017',companyName:'Powerica',location:'Jamnagar',customerName:'Bhaskar',jobSerialNo:'',issueDescription:'Overhauling V-Type',actionTaken:'Planed',status:'Complete',plannedDate:'2025-11-03',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:18,serialNo:'EMR-GJ-2026-018',companyName:'GETCO',location:'Wagodiya',customerName:'Jinesh',jobSerialNo:'',issueDescription:'Overhauling',actionTaken:'Shutdown Canceled Due to Rain',status:'Complete',plannedDate:'2025-10-27',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:19,serialNo:'EMR-GJ-2026-019',companyName:'Voltamp',location:'Makarpura',customerName:'Rajesh',jobSerialNo:'',issueDescription:'DM issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-16',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:20,serialNo:'EMR-GJ-2026-020',companyName:'Voltamp',location:'Makarpura',customerName:'Mizra',jobSerialNo:'',issueDescription:'Gear Plate V-type issue',actionTaken:'Solved via Video call support',status:'Complete',plannedDate:'2025-10-18',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:21,serialNo:'EMR-GJ-2026-021',companyName:'Voltamp',location:'Makarpura',customerName:'Nikhle',jobSerialNo:'',issueDescription:'DM issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:22,serialNo:'EMR-GJ-2026-022',companyName:'Schneider',location:'Halol',customerName:'Shukla',jobSerialNo:'',issueDescription:'V- Type Gear Plate Issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-27',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:23,serialNo:'EMR-GJ-2026-023',companyName:'AK Transformer',location:'Ahmedabad',customerName:'Sharma',jobSerialNo:'',issueDescription:'L- Type PRL indication issue and Avr Setting issue',actionTaken:'Via Video Call Issue Solved',status:'Complete',plannedDate:'2025-10-28',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:24,serialNo:'EMR-GJ-2026-024',companyName:'KEI factory',location:'Sanand',customerName:'Shamim Ahmad',jobSerialNo:'',issueDescription:'Breather Installation Work',actionTaken:'Planed',status:'Complete',plannedDate:'2025-11-01',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:25,serialNo:'EMR-GJ-2026-025',companyName:'Voltamp',location:'Makarpura',customerName:'Nikhil',jobSerialNo:'',issueDescription:'DCRM Testing Work',actionTaken:'Planed',status:'Complete',plannedDate:'2025-10-30',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:26,serialNo:'EMR-GJ-2026-026',companyName:'TBEA',location:'Karjan',customerName:'Kedar',jobSerialNo:'',issueDescription:'Terminal Box Issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-11-02',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:27,serialNo:'EMR-GJ-2026-027',companyName:'Voltamp',location:'Makarpura',customerName:'Bhargav',jobSerialNo:'',issueDescription:'Local and Remote Switch and Push button Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:28,serialNo:'EMR-GJ-2026-028',companyName:'AK Transformer',location:'Kadi',customerName:'Sharma',jobSerialNo:'',issueDescription:'Testing value issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-11-15',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:29,serialNo:'EMR-GJ-2026-029',companyName:'Lucro Site',location:'Vapi',customerName:'Yuvaraj',jobSerialNo:'',issueDescription:'TPI and AVR issue',actionTaken:'Planed',status:'Complete',plannedDate:'2025-11-14',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:30,serialNo:'EMR-GJ-2026-030',companyName:'T&R',location:'Ahmedabad',customerName:'~Shailesh Panchal',jobSerialNo:'',issueDescription:'Special DM requirements',actionTaken:'Solved via Call',status:'Complete',plannedDate:'2025-11-15',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:31,serialNo:'EMR-GJ-2026-031',companyName:'TOrrent power',location:'Ahmedabad',customerName:'Jigar Mistry',jobSerialNo:'',issueDescription:'OLTC LEAKAGE ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2025-11-17',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:32,serialNo:'EMR-GJ-2026-032',companyName:'VOLTAMP',location:'Makarpura',customerName:'Bhargav',jobSerialNo:'',issueDescription:'CUSTOMOR SIDE TPI ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2025-11-21',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:33,serialNo:'EMR-GJ-2026-033',companyName:'T&R',location:'Ahmedabad',customerName:'Rajendra',jobSerialNo:'',issueDescription:'MECHANICAL COUNTER ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:34,serialNo:'EMR-GJ-2026-034',companyName:'ROYAL/INCRIDABLE MACHINES',location:'Rajkot',customerName:'Punit',jobSerialNo:'',issueDescription:'K1 &K2 CONTACTOR NEED TO CHANGE WAITING FOR THE MATERIAL',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:35,serialNo:'EMR-GJ-2026-035',companyName:'VOLTAMP',location:'Savli',customerName:'Bhargav',jobSerialNo:'',issueDescription:'DM S8 SWITCH LIVER ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'WAITING FOR THE S8 SWITCH LIVER MATERIAL'},
+  {id:36,serialNo:'EMR-GJ-2026-036',companyName:'T&R',location:'Ahmedabad',customerName:'',jobSerialNo:'',issueDescription:'OLTC OVERHAULING',actionTaken:'',status:'Complete',plannedDate:'2025-11-01',completedDate:'',engineerAssigned:'Sathish',materialReq:''},
+  {id:37,serialNo:'EMR-GJ-2026-037',companyName:'TBEA',location:'Surat',customerName:'Kedar Kulkarni',jobSerialNo:'',issueDescription:'OLTC OIL LEAKAGE',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'',materialReq:''},
+  {id:38,serialNo:'EMR-GJ-2026-038',companyName:'Hitachi',location:'Baroda',customerName:'Gurupreet',jobSerialNo:'',issueDescription:'DM MOTOR ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:39,serialNo:'EMR-GJ-2026-039',companyName:'Schneider',location:'Halol',customerName:'Vipin',jobSerialNo:'',issueDescription:'CONDENSER ISSUE MOST PRIORITY',actionTaken:'PLANED',status:'Complete',plannedDate:'2025-12-15',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting for the Condenser Ring Material'},
+  {id:40,serialNo:'EMR-GJ-2026-040',companyName:'Torrent Power',location:'Ahmedabad',customerName:'Jigar',jobSerialNo:'',issueDescription:'Oltc Oil Leakage',actionTaken:'',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vasudevan & Vignesh',materialReq:''},
+  {id:41,serialNo:'EMR-GJ-2026-041',companyName:'TBEA',location:'Karjan',customerName:'Kedar Kulkarni',jobSerialNo:'',issueDescription:'DM TBX2 SHAFT ISSUE',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting For material that The TBX2 Length Shaft Nos 2'},
+  {id:42,serialNo:'EMR-GJ-2026-042',companyName:'Royal Electrical',location:'Anand',customerName:'Manish Bhai',jobSerialNo:'',issueDescription:'Cam Mechanism Tick Tick Sound appears',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:43,serialNo:'EMR-GJ-2026-043',companyName:'Voltamp',location:'Makarpura',customerName:'Bhiju Sir',jobSerialNo:'',issueDescription:'Tap Position Mismatch',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:44,serialNo:'EMR-GJ-2026-044',companyName:'Hitachi',location:'Makarpura',customerName:'Gurupreet',jobSerialNo:'',issueDescription:'Selector Stick Number mismatch',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:45,serialNo:'EMR-GJ-2026-045',companyName:'Vidyut',location:'Por',customerName:'',jobSerialNo:'',issueDescription:'MCB Tripping Issue  L- Type',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:46,serialNo:'EMR-GJ-2026-046',companyName:'Atlanta Electrical',location:'Anand',customerName:'Gowrang',jobSerialNo:'',issueDescription:'Diverter Switch issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:47,serialNo:'EMR-GJ-2026-047',companyName:'Prime median',location:'Palanpur',customerName:'Gowtham',jobSerialNo:'',issueDescription:'DM Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:48,serialNo:'EMR-GJ-2026-048',companyName:'TBEA',location:'Karjan',customerName:'Kedar Kulkarni',jobSerialNo:'',issueDescription:'RATIO ISSUE',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Pandiyan',materialReq:''},
+  {id:49,serialNo:'EMR-GJ-2026-049',companyName:'Atlanta',location:'Vadod',customerName:'Gowrang',jobSerialNo:'',issueDescription:'Mechanical Fuse Damge issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting For Mechanical Fuse Nos 1'},
+  {id:50,serialNo:'EMR-GJ-2026-050',companyName:'Median',location:'Deesa',customerName:'Sivarama Krishanan',jobSerialNo:'',issueDescription:'OLTC DM ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:51,serialNo:'EMR-GJ-2026-051',companyName:'Atlanta',location:'Anand',customerName:'Sameer',jobSerialNo:'',issueDescription:'OLTC DM ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2026-01-02',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:52,serialNo:'EMR-GJ-2026-052',companyName:'T&R',location:'Ahmedabad',customerName:'Rajendra',jobSerialNo:'',issueDescription:'OLTC DM ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:53,serialNo:'EMR-GJ-2026-053',companyName:'Vidyut',location:'Himmat Nagar',customerName:'Yuvaraj',jobSerialNo:'',issueDescription:'L- TYPE BCD ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2026-01-03',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting For AVR OLD MODEL NOS 1'},
+  {id:54,serialNo:'EMR-GJ-2026-054',companyName:'Vidyut',location:'Ambaji',customerName:'Yuvaraj',jobSerialNo:'',issueDescription:'L- TYPE DM ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2026-01-06',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:55,serialNo:'EMR-GJ-2026-055',companyName:'Tula Trans',location:'Surat',customerName:'Nishrang',jobSerialNo:'',issueDescription:'L- Type OLTC ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'2026-01-09',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting For Moving Contacter Assembly For R-Phase With Resistance and Then Fixed Contact In Dova Nos 3'},
+  {id:56,serialNo:'EMR-GJ-2026-056',companyName:'Atlanta',location:'Anand',customerName:'Dharshan',jobSerialNo:'',issueDescription:'D- Type Condenser ring Broken',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting for The Condenser Ring Material'},
+  {id:57,serialNo:'EMR-GJ-2026-057',companyName:'Atlanta',location:'Anand',customerName:'Dharshan',jobSerialNo:'',issueDescription:'OSR Required',actionTaken:'Planed',status:'Complete',plannedDate:'2026-01-12',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:58,serialNo:'EMR-GJ-2026-058',companyName:'Atlanta',location:'Anand',customerName:'Sameer',jobSerialNo:'',issueDescription:'DM Box Lower Indication Issue',actionTaken:'Planed',status:'Complete',plannedDate:'2026-01-12',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:59,serialNo:'EMR-GJ-2026-059',companyName:'Voltamp',location:'Baroda',customerName:'Bhiju',jobSerialNo:'',issueDescription:'Terminal issue',actionTaken:'Planed',status:'Complete',plannedDate:'2026-01-13',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:60,serialNo:'EMR-GJ-2026-060',companyName:'TBEA',location:'Karja',customerName:'Jignesh',jobSerialNo:'',issueDescription:'Packing Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:61,serialNo:'EMR-GJ-2026-061',companyName:'T&R',location:'Ahmedabad',customerName:'Dharshan Patel',jobSerialNo:'',issueDescription:'Testing Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:62,serialNo:'EMR-GJ-2026-062',companyName:'T-Power',location:'Bhuj',customerName:'',jobSerialNo:'',issueDescription:'TPI issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:63,serialNo:'EMR-GJ-2026-063',companyName:'ERADA SAVLI',location:'Savli',customerName:'',jobSerialNo:'',issueDescription:'OH ( overhauling)',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:64,serialNo:'EMR-GJ-2026-064',companyName:'T- Power',location:'Ahmedabad Bhavla',customerName:'Satveer',jobSerialNo:'',issueDescription:'SPP ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:65,serialNo:'EMR-GJ-2026-065',companyName:'TBEA',location:'Karjan',customerName:'Kedar',jobSerialNo:'',issueDescription:'Carbon Issue in OLTC',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:66,serialNo:'EMR-GJ-2026-066',companyName:'TBEA',location:'Karjan',customerName:'Kedar',jobSerialNo:'',issueDescription:'OLTC RATIO NOT COMING',actionTaken:'Planed',status:'Complete',plannedDate:'2026-02-21',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:67,serialNo:'EMR-GJ-2026-067',companyName:'Voltamp',location:'Makarpura',customerName:'Bhargav',jobSerialNo:'',issueDescription:'DM Issue',actionTaken:'Planed',status:'Complete',plannedDate:'2026-02-21',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:68,serialNo:'EMR-GJ-2026-068',companyName:'Unitrans',location:'Por',customerName:'',jobSerialNo:'',issueDescription:'Paint Touch up issue and Then Dvac Installation Work',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:69,serialNo:'EMR-GJ-2026-069',companyName:'Voltamp',location:'Makarpura',customerName:'Bhiju',jobSerialNo:'',issueDescription:'Dova Contacter Not in Specific Length',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:70,serialNo:'EMR-GJ-2026-070',companyName:'66KV Maglna',location:'Bhavnagar',customerName:'Ladumore',jobSerialNo:'',issueDescription:'Balancing and Synchronisation',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:71,serialNo:'EMR-GJ-2026-071',companyName:'220KV OTHA Ss',location:'Otha Gujarat',customerName:'Tejus',jobSerialNo:'',issueDescription:'Balancing and Synchronisation',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:72,serialNo:'EMR-GJ-2026-072',companyName:'T&R',location:'Moriya Ahmedabad',customerName:'Rajendra',jobSerialNo:'',issueDescription:'Rust Issue in Selector',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:73,serialNo:'EMR-GJ-2026-073',companyName:'Vidyut',location:'Por Gujarat',customerName:'Salim Sir',jobSerialNo:'',issueDescription:'MPR Tripping issue in Dm',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:74,serialNo:'EMR-GJ-2026-074',companyName:'T-Power',location:'Morbi',customerName:'Subash',jobSerialNo:'',issueDescription:'Tpi Not Working',actionTaken:'Planed',status:'Pending',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:75,serialNo:'EMR-GJ-2026-075',companyName:'Nova Block Industries',location:'',customerName:'',jobSerialNo:'',issueDescription:'Avr Showing Under',actionTaken:'Solved Via Video Call',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:76,serialNo:'EMR-GJ-2026-076',companyName:'Shamji Kangar and Company',location:'',customerName:'',jobSerialNo:'',issueDescription:'Avr Not Working',actionTaken:'Solved Via Video call',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:77,serialNo:'EMR-GJ-2026-077',companyName:'T&R',location:'Changodar',customerName:'Dharshan Patel',jobSerialNo:'',issueDescription:'Dm Issue',actionTaken:'Solved Via Video call',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:78,serialNo:'EMR-GJ-2026-078',companyName:'Ak Transformer',location:'Kadi',customerName:'Sharma Bahi',jobSerialNo:'',issueDescription:'L-Type Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:79,serialNo:'EMR-GJ-2026-079',companyName:'Vidyut',location:'Anjar',customerName:'',jobSerialNo:'',issueDescription:'Tpi issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:80,serialNo:'EMR-GJ-2026-080',companyName:'RHR MEDICARE',location:'Savli',customerName:'',jobSerialNo:'',issueDescription:'AVR setting Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:81,serialNo:'EMR-GJ-2026-081',companyName:'Atlanta',location:'Anand',customerName:'Dharshan',jobSerialNo:'',issueDescription:'D-Type Selector issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh &Srinivasan',materialReq:''},
+  {id:82,serialNo:'EMR-GJ-2026-082',companyName:'Atlanta',location:'Anand',customerName:'Dharshan',jobSerialNo:'',issueDescription:'M-Type Mechanical fuse issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:83,serialNo:'EMR-GJ-2026-083',companyName:'Voltamp',location:'Makarpura',customerName:'Bhargav',jobSerialNo:'',issueDescription:'DM Issue Continues Lower Operations',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:84,serialNo:'EMR-GJ-2026-084',companyName:'Anbuva',location:'Nandasan',customerName:'Anbuva',jobSerialNo:'',issueDescription:'MPR Tripping Issue',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:85,serialNo:'EMR-GJ-2026-085',companyName:'GETCO',location:'Tharad',customerName:'',jobSerialNo:'',issueDescription:'TRANSFORMER TRIP',actionTaken:'PLANED',status:'Pending',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting for materials'},
+  {id:86,serialNo:'EMR-GJ-2026-086',companyName:'Voltamp',location:'Halol',customerName:'Jhonny',jobSerialNo:'',issueDescription:'DM Issue',actionTaken:'Planed',status:'Pending',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:'Waiting For Returning Spring Material'},
+  {id:87,serialNo:'EMR-GJ-2026-087',companyName:'vidyut',location:'Por',customerName:'Salim',jobSerialNo:'',issueDescription:'DM ISSUE',actionTaken:'Planed',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:88,serialNo:'EMR-GJ-2026-088',companyName:'220KV GETCO MAGALNA',location:'Bhavnagar',customerName:'Vipul',jobSerialNo:'',issueDescription:'OLTC LEAKAGE ISSUE',actionTaken:'PLANED',status:'Complete',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:89,serialNo:'EMR-GJ-2026-089',companyName:'Ak Transformer',location:'',customerName:'Kushal Sir',jobSerialNo:'',issueDescription:'End Limit Issue',actionTaken:'Planed',status:'Pending',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''},
+  {id:90,serialNo:'EMR-GJ-2026-090',companyName:'220 KV DHANERA SS GETCO',location:'Dhanera',customerName:'',jobSerialNo:'',issueDescription:'job Continues Running',actionTaken:'Planed',status:'Pending',plannedDate:'',completedDate:'',engineerAssigned:'Vignesh',materialReq:''}
+];
+
+let filterStatus="All",editId=null,currentPage=1;
+const PAGE_SIZE=15;
+let scheduleActive=false, scheduleTimer=null;
+let gmailToken=null;
+
+const CITIES=[
+  {name:"Ahmedabad",x:178,y:198},{name:"Vadodara",x:218,y:255},{name:"Surat",x:230,y:330},
+  {name:"Rajkot",x:108,y:238},{name:"Bhavnagar",x:155,y:282},{name:"Gandhinagar",x:185,y:178},
+  {name:"Junagadh",x:96,y:302},{name:"Kutch",x:88,y:98},{name:"Jamnagar",x:72,y:198},
+  {name:"Bharuch",x:228,y:298},{name:"Anand",x:202,y:243},{name:"Mehsana",x:180,y:148},
+  {name:"Porbandar",x:48,y:262},{name:"Valsad",x:248,y:382},{name:"Navsari",x:240,y:356},
+  {name:"Deesa",x:175,y:110},{name:"Halol",x:225,y:238},{name:"Savli",x:212,y:248},
+  {name:"Karjan",x:222,y:268},{name:"Makarpura",x:220,y:258},{name:"Baroda",x:216,y:252},
+  {name:"Palanpur",x:168,y:120},{name:"Morbi",x:95,y:218},{name:"Bhuj",x:70,y:115},
+  {name:"Adipur",x:58,y:130},{name:"Sanand",x:172,y:205},{name:"Kadi",x:177,y:165},
+  {name:"Vapi",x:246,y:388},{name:"Himmat Nagar",x:190,y:145},{name:"Dhanera",x:165,y:112}
+];
+const GUJARAT_MAIN="M 170,22 C 180,18 195,24 210,36 C 220,44 232,52 242,64 C 250,74 255,86 258,100 C 260,110 262,122 264,134 C 266,146 268,160 268,174 C 268,188 266,200 266,214 C 266,228 268,240 268,254 C 268,268 266,280 264,294 C 262,306 258,318 254,330 C 250,342 244,354 238,364 C 232,374 224,382 216,390 C 208,396 198,400 188,398 C 178,396 172,388 168,378 C 164,368 160,356 154,346 C 148,338 140,332 130,328 C 120,324 110,322 100,318 C 92,314 86,308 78,300 C 70,292 62,284 54,276 C 46,268 40,260 36,250 C 32,240 32,230 32,220 C 34,212 38,206 44,200 C 50,194 56,188 56,178 C 56,168 50,158 48,148 C 46,138 48,128 54,120 C 60,114 68,110 72,102 C 74,94 70,84 68,76 C 66,68 68,58 74,50 C 80,44 90,40 100,38 C 112,36 124,30 136,24 C 148,20 160,18 170,22 Z";
+const KUTCH_REGION="M 48,148 C 42,140 34,134 24,130 C 16,128 8,126 4,120 C 2,114 6,106 14,100 C 22,94 34,90 48,86 C 58,84 66,82 72,80 C 76,84 74,92 72,102 C 68,110 60,114 54,120 C 50,128 48,138 48,148 Z";
+
+function notify(msg){const el=document.getElementById('notification');el.textContent=msg;el.style.display='block';setTimeout(()=>{el.style.display='none'},2500)}
+function nextSerial(){return'EMR-GJ-2026-'+String(complaints.length+1).padStart(3,'0')}
+function getFiltered(){const q=document.getElementById('searchInput').value.toLowerCase();return complaints.filter(c=>{const ms=filterStatus==='All'||c.status===filterStatus;const mq=q===''||Object.values(c).some(v=>String(v).toLowerCase().includes(q));return ms&&mq})}
+
+// ===== EMAIL HTML GENERATOR =====
+function generateEmailHTML(){
+  const pending=complaints.filter(c=>c.status==='Pending');
+  const materialItems=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='');
+  const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const senderName=document.getElementById('senderName')?.value||'Service Team';
+
+  let html=`
+  <div style="font-family:'Segoe UI',Tahoma,sans-serif;max-width:700px;margin:0 auto;background:#fff">
+    <div style="background:linear-gradient(135deg,#BE1E2D,#8B1520);padding:24px 30px;border-radius:12px 12px 0 0">
+      <table width="100%"><tr>
+        <td><span style="font-family:'Arial Black',Impact,sans-serif;font-size:28px;color:#fff;letter-spacing:-2px">EM</span><span style="font-family:'Arial Black',Impact,sans-serif;font-size:28px;color:#ddd;letter-spacing:-1px">R</span></td>
+        <td style="text-align:right"><div style="color:#fff;font-size:16px;font-weight:700">Daily Service Report</div><div style="color:#ffcdd2;font-size:12px;margin-top:4px">${today}</div></td>
+      </tr></table>
+    </div>
+    <div style="padding:24px 30px;border:1px solid #e0e0e0;border-top:none">
+      <div style="display:flex;gap:16px;margin-bottom:24px">
+        <div style="flex:1;background:#FFF3F4;border:1px solid #FFCDD2;border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#BE1E2D">${pending.length}</div>
+          <div style="font-size:11px;color:#BE1E2D;font-weight:700;text-transform:uppercase;letter-spacing:1px">Pending</div>
+        </div>
+        <div style="flex:1;background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#F57F17">${materialItems.length}</div>
+          <div style="font-size:11px;color:#F57F17;font-weight:700;text-transform:uppercase;letter-spacing:1px">Material Req</div>
+        </div>
+        <div style="flex:1;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#2E7D32">${complaints.filter(c=>c.status==='Complete').length}</div>
+          <div style="font-size:11px;color:#2E7D32;font-weight:700;text-transform:uppercase;letter-spacing:1px">Completed</div>
+        </div>
+      </div>`;
+
+  // PENDING TABLE
+  if(pending.length>0){
+    html+=`<div style="margin-bottom:24px">
+      <div style="font-size:14px;font-weight:800;color:#BE1E2D;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #BE1E2D">&#9888; Pending Complaints (${pending.length})</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">
+        <tr style="background:#BE1E2D">
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px;letter-spacing:0.5px">SR NO</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">COMPANY</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">LOCATION</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">ISSUE</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">ENGINEER</th>
+        </tr>`;
+    pending.forEach((c,i)=>{
+      const bg=i%2===0?'#fff':'#fafafa';
+      html+=`<tr style="background:${bg}">
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#BE1E2D;font-weight:700;font-family:monospace;font-size:11px">${c.serialNo}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-weight:600">${c.companyName}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#666">${c.location||'—'}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#333">${c.issueDescription}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#666">${c.engineerAssigned||'—'}</td>
+      </tr>`;
+    });
+    html+=`</table></div>`;
+  }
+
+  // MATERIAL TABLE
+  if(materialItems.length>0){
+    html+=`<div style="margin-bottom:24px">
+      <div style="font-size:14px;font-weight:800;color:#F57F17;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #F57F17">&#128230; Material Requirements (${materialItems.length})</div>
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">
+        <tr style="background:#F57F17">
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">SR NO</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">COMPANY</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">MATERIAL REQUIRED</th>
+          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">STATUS</th>
+        </tr>`;
+    materialItems.forEach((c,i)=>{
+      const bg=i%2===0?'#fff':'#FFFDE7';
+      const statusColor=c.status==='Pending'?'#BE1E2D':'#2E7D32';
+      html+=`<tr style="background:${bg}">
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#BE1E2D;font-weight:700;font-family:monospace;font-size:11px">${c.serialNo}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;font-weight:600">${c.companyName}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;color:#333;font-weight:500">${c.materialReq}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee"><span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;background:${c.status==='Pending'?'#FFF3F4':'#E8F5E9'};color:${statusColor}">${c.status}</span></td>
+      </tr>`;
+    });
+    html+=`</table></div>`;
+  }
+
+  html+=`
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center">
+        <div>EMR Tap Changers Pvt. Ltd. — Gujarat Service Division</div>
+        <div style="margin-top:4px">Report generated on ${today} by ${senderName}</div>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function generateCSVBlob(){
+  const items=[...complaints.filter(c=>c.status==='Pending'),...complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='')];
+  const unique=[...new Map(items.map(c=>[c.id,c])).values()];
+  const h=["Serial No","Company","Location","Customer","Issue","Action","Status","Planned Date","Engineer","Material Req"];
+  const rows=unique.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.engineerAssigned,c.materialReq]);
+  const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  return new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+}
+
+// ===== EMAIL PANEL =====
+function openEmailPanel(){
+  document.getElementById('emailPanel').style.display='block';
+  renderEmailPreview();
+  setTimeout(()=>document.getElementById('emailPanel').scrollIntoView({behavior:'smooth'}),100);
+}
+function closeEmailPanel(){document.getElementById('emailPanel').style.display='none'}
+
+function renderEmailPreview(){
+  const pending=complaints.filter(c=>c.status==='Pending').length;
+  const matl=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='').length;
+  document.getElementById('previewCount').textContent=pending+' pending, '+matl+' material items';
+  document.getElementById('emailPreview').innerHTML=generateEmailHTML();
+}
+
+function toggleSchedule(){
+  scheduleActive=!scheduleActive;
+  const track=document.getElementById('scheduleToggle');
+  const timeWrap=document.getElementById('scheduleTimeWrap');
+  const statusEl=document.getElementById('scheduleStatus');
+  if(scheduleActive){
+    track.classList.add('on');
+    timeWrap.style.display='flex';
+    statusEl.style.display='flex';
+    startSchedule();
+  }else{
+    track.classList.remove('on');
+    timeWrap.style.display='none';
+    statusEl.style.display='none';
+    if(scheduleTimer)clearInterval(scheduleTimer);
+    notify('Daily email schedule disabled');
+  }
+}
+
+function startSchedule(){
+  const timeVal=document.getElementById('scheduleTime').value;
+  const[h,m]=timeVal.split(':');
+  const ampm=parseInt(h)>=12?'PM':'AM';
+  const h12=parseInt(h)%12||12;
+  document.getElementById('nextSendTime').textContent=h12+':'+m+' '+ampm;
+  if(scheduleTimer)clearInterval(scheduleTimer);
+  scheduleTimer=setInterval(()=>{
+    const now=new Date();
+    const nowTime=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    if(nowTime===timeVal&&now.getSeconds()<2){
+      sendEmailNow();
+    }
+  },1000);
+  notify('Daily email scheduled at '+h12+':'+m+' '+ampm);
+}
+
+// ===== GMAIL API =====
+function getGmailToken(){
+  return new Promise((resolve,reject)=>{
+    if(gmailToken){resolve(gmailToken);return}
+    // Use Google Identity Services for OAuth2
+    const client=google.accounts.oauth2.initTokenClient({
+      client_id:'644015165354-tu01onsj9vn7cbcan7cmgf6kb769f4nm.apps.googleusercontent.com',
+      scope:'https://www.googleapis.com/auth/gmail.send',
+      callback:(response)=>{
+        if(response.error){reject(response);return}
+        gmailToken=response.access_token;
+        resolve(gmailToken);
+      }
+    });
+    client.requestAccessToken();
+  });
+}
+
+async function sendEmailNow(){
+  const managerEmail=document.getElementById('managerEmail').value.trim();
+  if(!managerEmail){notify('⚠ Please enter manager email');return}
+  const ccEmail=document.getElementById('ccEmail').value.trim();
+  const senderName=document.getElementById('senderName').value.trim()||'Service Team';
+  const btn=document.getElementById('sendBtn');
+  btn.innerHTML='<span class="spinner"></span> Connecting Gmail...';
+  btn.disabled=true;
+
+  try{
+    const token=await getGmailToken();
+    btn.innerHTML='<span class="spinner"></span> Sending...';
+    const subject='EMR Gujarat — Daily Pending Report ('+new Date().toLocaleDateString('en-IN')+')';
+    const htmlBody=generateEmailHTML();
+
+    // Build MIME with CSV attachment
+    const csvBlob=generateCSVBlob();
+    const csvText=await csvBlob.text();
+    const csvBase64=btoa(unescape(encodeURIComponent(csvText)));
+    const boundary='emr_boundary_'+Date.now();
+
+    let mime='Content-Type: multipart/mixed; boundary="'+boundary+'"\r\n';
+    mime+='MIME-Version: 1.0\r\n';
+    mime+='To: '+managerEmail+'\r\n';
+    if(ccEmail) mime+='Cc: '+ccEmail+'\r\n';
+    mime+='Subject: '+subject+'\r\n\r\n';
+    mime+='--'+boundary+'\r\n';
+    mime+='Content-Type: text/html; charset="UTF-8"\r\n\r\n';
+    mime+=htmlBody+'\r\n\r\n';
+    mime+='--'+boundary+'\r\n';
+    mime+='Content-Type: text/csv; name="EMR_Pending_Report_'+new Date().toISOString().slice(0,10)+'.csv"\r\n';
+    mime+='Content-Disposition: attachment; filename="EMR_Pending_Report_'+new Date().toISOString().slice(0,10)+'.csv"\r\n';
+    mime+='Content-Transfer-Encoding: base64\r\n\r\n';
+    mime+=csvBase64+'\r\n';
+    mime+='--'+boundary+'--';
+
+    const raw=btoa(unescape(encodeURIComponent(mime))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+
+    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({raw:raw})
+    });
+
+    if(res.ok){
+      notify('✓ Email sent to '+managerEmail+' with CSV attachment!');
+    }else{
+      const err=await res.json();
+      throw new Error(err.error?.message||'Failed to send');
+    }
+  }catch(e){
+    if(e.type==='popup_closed'||e.error==='popup_closed_by_user'){
+      notify('Gmail sign-in was cancelled');
+    }else if(String(e).includes('popup_failed')){
+      // Fallback: open mailto
+      notify('⚠ Gmail API not configured — opening email client instead');
+      fallbackMailto();
+    }else{
+      notify('⚠ '+e.message);
+      console.error(e);
+    }
+  }finally{
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#fff"/></svg> Send Now via Gmail';
+    btn.disabled=false;
+  }
+}
+
+function fallbackMailto(){
+  const managerEmail=document.getElementById('managerEmail').value.trim()||'';
+  const ccEmail=document.getElementById('ccEmail').value.trim();
+  const pending=complaints.filter(c=>c.status==='Pending');
+  const matl=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='');
+  const today=new Date().toLocaleDateString('en-IN');
+  let body='EMR Tap Changers - Gujarat Daily Report ('+today+')\n\n';
+  body+='PENDING COMPLAINTS: '+pending.length+'\n';
+  body+='========================\n';
+  pending.forEach(c=>{body+=c.serialNo+' | '+c.companyName+' | '+c.location+' | '+c.issueDescription+' | '+c.engineerAssigned+'\n'});
+  body+='\nMATERIAL REQUIREMENTS: '+matl.length+'\n';
+  body+='========================\n';
+  matl.forEach(c=>{body+=c.serialNo+' | '+c.companyName+' | '+c.materialReq+'\n'});
+  const subject='EMR Gujarat — Daily Pending Report ('+today+')';
+  let url='mailto:'+managerEmail+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  if(ccEmail) url+='&cc='+encodeURIComponent(ccEmail);
+  window.open(url);
+}
+
+function copyEmailHTML(){
+  const html=generateEmailHTML();
+  navigator.clipboard.writeText(html).then(()=>notify('✓ HTML copied to clipboard'));
+}
+
+// ===== STANDARD DASHBOARD FUNCTIONS =====
+function renderStats(){
+  const total=complaints.length,pending=complaints.filter(c=>c.status==='Pending').length,complete=complaints.filter(c=>c.status==='Complete').length;
+  document.getElementById('statsRow').innerHTML=[
+    {label:'Total',value:total,color:'#5b9bd5',icon:'\u{1F4CB}'},
+    {label:'Pending',value:pending,color:'#BE1E2D',icon:'\u23F3'},
+    {label:'Complete',value:complete,color:'#4ade80',icon:'\u2713'}
+  ].map(s=>`<div class="stat-card" style="background:linear-gradient(135deg,${s.color}12,${s.color}06);border:1.5px solid ${s.color}28"><div class="stat-icon" style="background:${s.color}18">${s.icon}</div><div><div class="stat-value" style="color:${s.color}">${s.value}</div><div class="stat-label">${s.label}</div></div></div>`).join('');
+}
+
+function renderWorkload(){
+  const eng={};
+  complaints.forEach(c=>{const n=c.engineerAssigned||'Unassigned';if(!eng[n])eng[n]={p:0,c:0};c.status==='Pending'?eng[n].p++:eng[n].c++});
+  document.getElementById('workloadContent').innerHTML=Object.entries(eng).sort((a,b)=>(b[1].p+b[1].c)-(a[1].p+a[1].c)).map(([name,d])=>{
+    const t=d.p+d.c;const ini=name.split(' ').filter(w=>w).map(w=>w[0]).join('').substring(0,2);
+    return`<div class="eng-row"><div class="eng-avatar">${ini.toUpperCase()}</div><div class="eng-info"><div class="eng-name">${name} <span style="font-size:11px;color:var(--text-muted)">(${t})</span></div><div class="eng-bar"><div class="eng-bar-done" style="width:${(d.c/t)*100}%"></div><div class="eng-bar-open" style="width:${(d.p/t)*100}%"></div></div></div><div class="eng-stats"><span class="done">${d.c} done</span> \u00B7 <span class="open">${d.p} open</span></div></div>`;
+  }).join('');
+}
+
+function renderMap(){
+  const cc={};complaints.forEach(c=>{if(!c.location)return;if(!cc[c.location])cc[c.location]={pending:0,complete:0};c.status==='Pending'?cc[c.location].pending++:cc[c.location].complete++});
+  const gridH=[60,120,180,240,300,360].map(y=>'<line x1="-10" y1="'+y+'" x2="290" y2="'+y+'" stroke="#BE1E2D" stroke-width="0.15" opacity="0.18" stroke-dasharray="4 8"/>').join('');
+  const gridV=[50,100,150,200,250].map(x=>'<line x1="'+x+'" y1="0" x2="'+x+'" y2="420" stroke="#BE1E2D" stroke-width="0.15" opacity="0.18" stroke-dasharray="4 8"/>').join('');
+  const cities=CITIES.map(city=>{const data=cc[city.name];const hp=data&&data.pending>0;const hc=data&&data.complete>0;const t=data?(data.pending+data.complete):0;const r=data?Math.min(4+t,8):2;const fill=hp?'#BE1E2D':hc?'#4ade80':'#B0B0B055';const anim=hp?'<animate attributeName="r" values="'+r+';'+(r+2)+';'+r+'" dur="2s" repeatCount="indefinite"/>':'';const halo=data?'<circle cx="'+city.x+'" cy="'+city.y+'" r="'+(r+6)+'" fill="'+(hp?'#BE1E2D10':'#4ade8010')+'" stroke="none"/>':'';const lbl='<text x="'+city.x+'" y="'+(city.y-r-4)+'" text-anchor="middle" fill="'+(data?'#f0f0f2':'#5a5a66')+'" font-size="'+(data?'7.5':'6.5')+'" font-family="DM Sans,sans-serif" font-weight="'+(data?'700':'400')+'">'+city.name+'</text>';const sts=data?'<text x="'+city.x+'" y="'+(city.y+r+8)+'" text-anchor="middle" fill="#a0a0a8" font-size="6" font-family="JetBrains Mono,monospace">'+(data.pending>0?'P:'+data.pending:'')+(data.complete>0?' C:'+data.complete:'')+'</text>':'';return'<g>'+halo+'<circle cx="'+city.x+'" cy="'+city.y+'" r="'+r+'" fill="'+fill+'" stroke="#fff" stroke-width="0.6"'+(data?' filter="url(#glow)"':'')+'>'+anim+'</circle>'+lbl+sts+'</g>'}).join('');
+  document.getElementById('mapContainer').innerHTML=`<svg viewBox="-10 0 300 420" style="width:100%;height:auto;filter:drop-shadow(0 2px 12px rgba(190,30,45,0.15))"><defs><linearGradient id="mapGrad" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#2a2a30"/><stop offset="100%" stop-color="#1e1e24"/></linearGradient><linearGradient id="mapStroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#BE1E2D"/><stop offset="100%" stop-color="#e8555a"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="mapShadow"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#BE1E2D" flood-opacity="0.18"/></filter></defs><path d="${GUJARAT_MAIN}" fill="url(#mapGrad)" stroke="url(#mapStroke)" stroke-width="1.8" filter="url(#mapShadow)" opacity="0.92"/><path d="${KUTCH_REGION}" fill="url(#mapGrad)" stroke="url(#mapStroke)" stroke-width="1.5" opacity="0.82"/>${gridH}${gridV}${cities}</svg>`;
+}
+
+function renderFilters(){
+  const p=complaints.filter(c=>c.status==='Pending').length,co=complaints.filter(c=>c.status==='Complete').length;
+  document.getElementById('filterBtns').innerHTML=['All','Pending','Complete'].map(s=>{const l=s==='All'?'All ('+complaints.length+')':s==='Pending'?'Pending ('+p+')':'Complete ('+co+')';return'<button class="filter-btn '+(filterStatus===s?'active':'')+'" onclick="setFilter(\''+s+'\')">'+l+'</button>'}).join('');
+}
+function setFilter(s){filterStatus=s;currentPage=1;renderAll()}
+
+function renderTable(){
+  const filtered=getFiltered();const totalPages=Math.ceil(filtered.length/PAGE_SIZE);if(currentPage>totalPages)currentPage=totalPages||1;
+  const start=(currentPage-1)*PAGE_SIZE;const page=filtered.slice(start,start+PAGE_SIZE);
+  if(filtered.length===0){document.getElementById('tableBody').innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--text-muted)">No complaints found</td></tr>';document.getElementById('pagination').innerHTML='';return}
+  document.getElementById('tableBody').innerHTML=page.map((c,i)=>`<tr class="${i%2!==0?'row-alt':''}"><td class="serial">${c.serialNo}</td><td class="cell-bold" title="${c.companyName}">${c.companyName}</td><td class="cell-dim">${c.location||'\u2014'}</td><td class="cell-dim">${c.customerName||'\u2014'}</td><td class="cell-mono">${c.jobSerialNo||'\u2014'}</td><td><span class="badge ${c.status==='Pending'?'badge-pending':'badge-complete'}">${c.status==='Pending'?'PENDING':'COMPLETE'}</span></td><td class="cell-dim" style="font-size:12px">${c.plannedDate||'\u2014'}</td><td class="cell-dim" style="font-size:12px">${c.engineerAssigned||'\u2014'}</td><td style="white-space:nowrap"><button class="btn-small btn-view" onclick="viewDetail(${c.id})">View</button> <button class="btn-small btn-edit" onclick="openEditForm(${c.id})">Edit</button> <button class="btn-small btn-del" onclick="deleteComplaint(${c.id})">Del</button></td></tr>`).join('');
+  let ph='<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage<=1?'disabled':'')+'>◀ Prev</button>';
+  ph+='<span class="page-info">Page '+currentPage+' of '+totalPages+' ('+filtered.length+' results)</span>';
+  ph+='<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage>=totalPages?'disabled':'')+'>Next ▶</button>';
+  document.getElementById('pagination').innerHTML=ph;
+}
+function goPage(p){currentPage=p;renderTable();window.scrollTo({top:document.querySelector('.table-wrap').offsetTop-80,behavior:'smooth'})}
+
+function viewDetail(id){const c=complaints.find(x=>x.id===id);if(!c)return;document.getElementById('detailSerial').textContent=c.serialNo;document.getElementById('detailBadge').innerHTML='<span class="badge '+(c.status==='Pending'?'badge-pending':'badge-complete')+'" style="padding:6px 16px;border-radius:8px;font-size:12px">'+c.status+'</span>';document.getElementById('detailBody').innerHTML=[['Company',c.companyName],['Location',c.location||'\u2014'],['Customer Name',c.customerName||'\u2014'],['Job Serial No',c.jobSerialNo||'\u2014'],['Issue Description',c.issueDescription],['Action Taken',c.actionTaken||'\u2014'],['Planned Date',c.plannedDate||'\u2014'],['Completed Date',c.completedDate||'\u2014'],['Engineer Assigned',c.engineerAssigned||'\u2014'],['Material Requirements',c.materialReq||'\u2014']].map(([l,v])=>'<div class="detail-label">'+l+'</div><div class="detail-value">'+v+'</div>').join('');document.getElementById('detailModal').style.display='flex'}
+function closeDetail(){document.getElementById('detailModal').style.display='none'}
+
+function openNewForm(){editId=null;document.getElementById('formTitle').textContent='Register New Complaint';document.getElementById('formSub').textContent='Fill in all details';document.getElementById('saveBtn2').textContent='Register Complaint';clearForm();document.getElementById('formPanel').style.display='block';setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100)}
+function openEditForm(id){const c=complaints.find(x=>x.id===id);if(!c)return;editId=id;document.getElementById('formTitle').textContent='Edit Complaint';document.getElementById('formSub').textContent='Update details below';document.getElementById('saveBtn2').textContent='Update Complaint';['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{document.getElementById('f_'+k).value=c[k]||''});document.getElementById('formPanel').style.display='block';setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100)}
+function clearForm(){['companyName','customerName','jobSerialNo','materialReq','issueDescription','actionTaken'].forEach(k=>document.getElementById('f_'+k).value='');document.getElementById('f_location').value='';document.getElementById('f_engineerAssigned').value='';document.getElementById('f_plannedDate').value='';document.getElementById('f_completedDate').value='';document.getElementById('f_status').value='Pending'}
+function closeForm(){document.getElementById('formPanel').style.display='none';editId=null}
+function saveComplaint(){const d={};['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{d[k]=document.getElementById('f_'+k).value});if(!d.companyName||!d.issueDescription){notify('\u26A0 Please fill Company Name and Issue');return}if(editId){complaints=complaints.map(c=>c.id===editId?{...c,...d}:c);notify('\u2713 Complaint updated')}else{complaints.push({...d,id:Date.now(),serialNo:nextSerial()});notify('\u2713 New complaint registered')}closeForm();renderAll()}
+function deleteComplaint(id){if(!confirm('Delete this complaint?'))return;complaints=complaints.filter(c=>c.id!==id);notify('\u2713 Complaint removed');renderAll()}
+function exportCSV(){const h=["Serial No","Company","Location","Customer","Job Serial","Issue","Action Taken","Status","Planned Date","Completed Date","Engineer","Material Req"];const rows=complaints.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.jobSerialNo,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.completedDate,c.engineerAssigned,c.materialReq]);const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EMR_TapChangers_Gujarat_'+new Date().toISOString().slice(0,10)+'.csv';a.click();notify('\u2713 CSV exported')}
+
+function renderAll(){renderStats();renderWorkload();renderMap();renderFilters();renderTable()}
+renderAll();
+</script>
+</body>
+</html>
