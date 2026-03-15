@@ -266,8 +266,10 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
       </div>
     </div>
     <div id="scheduleStatus" style="display:none" class="schedule-status">
-      <span class="dot"></span> Daily email scheduled — next send at <strong id="nextSendTime">09:00 AM</strong>
+      <span class="dot"></span> Schedule ACTIVE — sending at <strong id="nextSendTime">09:00 AM</strong>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:13px;color:#1a73e8;font-weight:700" id="liveClock"></span>
     </div>
+    <div id="scheduleLog" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;background:#0a0f1e;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5e9cff;max-height:100px;overflow-y:auto"></div>
 
     <!-- PREVIEW -->
     <div class="email-preview">
@@ -642,9 +644,21 @@ function toggleSchedule(){
     track.classList.remove('on');
     timeWrap.style.display='none';
     statusEl.style.display='none';
-    if(scheduleTimer)clearInterval(scheduleTimer);
+    if(scheduleTimer){clearInterval(scheduleTimer);scheduleTimer=null}
+    if(window.scheduleWorker){window.scheduleWorker.terminate();window.scheduleWorker=null}
+    document.getElementById('scheduleLog').style.display='none';
+    document.getElementById('scheduleLog').innerHTML='';
     notify('Daily email schedule disabled');
   }
+}
+
+function scheduleLog(msg){
+  const logEl=document.getElementById('scheduleLog');
+  if(!logEl)return;
+  logEl.style.display='block';
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  logEl.innerHTML='['+time+'] '+msg+'<br>'+logEl.innerHTML;
+  if(logEl.children.length>10)logEl.innerHTML=logEl.innerHTML.split('<br>').slice(0,10).join('<br>');
 }
 
 function startSchedule(){
@@ -652,29 +666,75 @@ function startSchedule(){
   const[h,m]=timeVal.split(':');
   const ampm=parseInt(h)>=12?'PM':'AM';
   const h12=parseInt(h)%12||12;
-  document.getElementById('nextSendTime').textContent=h12+':'+m+' '+ampm;
-  if(scheduleTimer)clearInterval(scheduleTimer);
-  // Pre-authenticate Gmail so scheduled send works without popup
-  getGmailToken().then(()=>{notify('\u2713 Gmail connected! Daily email scheduled at '+h12+':'+m+' '+ampm)}).catch(()=>{notify('\u26A0 Please sign in to Gmail first — click Send Now once')});
-  let lastSentDate='';
-  scheduleTimer=setInterval(()=>{
-    const now=new Date();
-    const nowH=String(now.getHours()).padStart(2,'0');
-    const nowM=String(now.getMinutes()).padStart(2,'0');
-    const todayStr=now.toDateString();
-    // Send if time matches AND haven't sent today yet
-    if(nowH===h&&nowM===m&&lastSentDate!==todayStr){
-      lastSentDate=todayStr;
-      console.log('[EMR Schedule] Triggering auto-email at '+nowH+':'+nowM);
-      sendEmailNow();
-      // Update next send time display
-      const tomorrow=new Date(now.getTime()+86400000);
-      document.getElementById('nextSendTime').textContent=h12+':'+m+' '+ampm+' (tomorrow)';
-    }
-  },5000);
-  // Also update status display
-  const statusEl=document.getElementById('scheduleStatus');
-  if(statusEl)statusEl.style.display='flex';
+  const targetTime=h12+':'+m+' '+ampm;
+  document.getElementById('nextSendTime').textContent=targetTime;
+  
+  if(scheduleTimer){clearInterval(scheduleTimer);scheduleTimer=null}
+  if(window.scheduleWorker){window.scheduleWorker.terminate();window.scheduleWorker=null}
+
+  // Pre-authenticate Gmail
+  scheduleLog('Connecting to Gmail...');
+  getGmailToken().then(()=>{
+    scheduleLog('\u2713 Gmail authenticated! Token ready.');
+    notify('\u2713 Gmail connected! Schedule set for '+targetTime);
+  }).catch(()=>{
+    scheduleLog('\u26A0 Gmail auth failed. Click "Send Now" first to sign in.');
+    notify('\u26A0 Please click "Send Now via Gmail" once to sign in first');
+  });
+
+  // METHOD 1: Web Worker (works in background tabs!)
+  try{
+    const workerCode=`
+      let targetH='${h}';
+      let targetM='${m}';
+      let lastSent='';
+      setInterval(()=>{
+        const now=new Date();
+        const nowH=String(now.getHours()).padStart(2,'0');
+        const nowM=String(now.getMinutes()).padStart(2,'0');
+        const todayStr=now.toDateString();
+        postMessage({type:'tick',time:nowH+':'+nowM+':'+String(now.getSeconds()).padStart(2,'0')});
+        if(nowH===targetH&&nowM===targetM&&lastSent!==todayStr){
+          lastSent=todayStr;
+          postMessage({type:'trigger',time:nowH+':'+nowM});
+        }
+      },2000);
+    `;
+    const blob=new Blob([workerCode],{type:'application/javascript'});
+    window.scheduleWorker=new Worker(URL.createObjectURL(blob));
+    window.scheduleWorker.onmessage=function(e){
+      if(e.data.type==='tick'){
+        const clockEl=document.getElementById('liveClock');
+        if(clockEl)clockEl.textContent='\u23F0 '+e.data.time;
+      }
+      if(e.data.type==='trigger'){
+        scheduleLog('\u{1F4E7} TRIGGER! Sending email at '+e.data.time);
+        notify('\u{1F4E7} Auto-sending daily report...');
+        sendEmailNow();
+      }
+    };
+    scheduleLog('Web Worker started. Monitoring for '+h+':'+m+' every 2s');
+    scheduleLog('Schedule target: '+targetTime+' \u2014 keep this page open');
+  }catch(err){
+    // METHOD 2: Fallback to setInterval if Worker fails
+    scheduleLog('Worker failed, using fallback timer');
+    let lastSentDate='';
+    scheduleTimer=setInterval(()=>{
+      const now=new Date();
+      const nowH=String(now.getHours()).padStart(2,'0');
+      const nowM=String(now.getMinutes()).padStart(2,'0');
+      const todayStr=now.toDateString();
+      const clockEl=document.getElementById('liveClock');
+      if(clockEl)clockEl.textContent='\u23F0 '+nowH+':'+nowM+':'+String(now.getSeconds()).padStart(2,'0');
+      if(nowH===h&&nowM===m&&lastSentDate!==todayStr){
+        lastSentDate=todayStr;
+        scheduleLog('\u{1F4E7} TRIGGER! Sending email at '+nowH+':'+nowM);
+        sendEmailNow();
+      }
+    },2000);
+  }
+
+  document.getElementById('scheduleStatus').style.display='flex';
 }
 
 // ===== GMAIL API =====
