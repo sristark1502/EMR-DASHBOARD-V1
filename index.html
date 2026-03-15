@@ -262,7 +262,7 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
       </label>
       <div class="schedule-time" id="scheduleTimeWrap" style="display:none">
         <label class="email-label" style="margin:0">Send at:</label>
-        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:120px">
+        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:120px" onchange="if(scheduleActive)startSchedule()">
       </div>
     </div>
     <div id="scheduleStatus" style="display:none" class="schedule-status">
