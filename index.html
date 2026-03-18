@@ -643,7 +643,7 @@ function generateEmailHTML(){
 }
 
 function generateCSVBlob(){
-  const items=[...complaints.filter(c=>c.status==='Pending'),...complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='')];
+  const items=[...complaints.filter(c=>c.status==='Pending'),...complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='')];
   const unique=[...new Map(items.map(c=>[c.id,c])).values()];
   const h=["Serial No","Company","Location","Customer","Issue","Action","Status","Planned Date","Engineer","Material Req"];
   const rows=unique.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.engineerAssigned,c.materialReq]);
@@ -859,7 +859,7 @@ function fallbackMailto(){
   const managerEmail=document.getElementById('managerEmail').value.trim()||'';
   const ccEmail=document.getElementById('ccEmail').value.trim();
   const pending=complaints.filter(c=>c.status==='Pending');
-  const matl=complaints.filter(c=>c.materialReq&&c.materialReq.trim()!=='');
+  const matl=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
   const today=new Date().toLocaleDateString('en-IN');
   let body='EMR Tap Changers - Gujarat Daily Report ('+today+')\n\n';
   body+='PENDING COMPLAINTS: '+pending.length+'\n';
