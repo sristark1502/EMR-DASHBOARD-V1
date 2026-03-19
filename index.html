@@ -402,6 +402,11 @@ const API_KEY = 'AIzaSyBecbJU49RN53QO2POXTQKjvHZ3gkPnsEg';
 const SHEET_NAME = 'Service Report';
 const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
 
+// ===== GOOGLE APPS SCRIPT WEB APP URL (for writes) =====
+// IMPORTANT: Paste your deployed Apps Script Web App URL below.
+// Steps: script.google.com → New Project → paste code from EMR_AppScript.gs → Deploy → Web App → Anyone → Copy URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxkNk2HdJD1-DbMVOkZ8usbMGF_kp8jh73Y3bwSwGkTk93S4pI2h3yKT16wFBIz7MlYQ/exec';
+
 // ===== LOAD DATA FROM GOOGLE SHEETS =====
 async function loadFromSheets() {
   try {
@@ -453,10 +458,14 @@ function parseSheetDate(val) {
   return val;
 }
 
-// ===== SAVE TO GOOGLE SHEETS (Append new row) =====
+// ===== SAVE TO GOOGLE SHEETS (Append new row via Apps Script) =====
+// NOTE: API keys cannot write to Sheets. We use a Google Apps Script Web App as a proxy instead.
 async function appendToSheet(complaint) {
+  if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    notify('\u26A0 Saved locally only — set SCRIPT_URL to enable Google Sheets sync');
+    return;
+  }
   try {
-    const url = `${SHEETS_API}/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A:N:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
     const row = [
       complaints.length,
       complaint.companyName,
@@ -473,17 +482,17 @@ async function appendToSheet(complaint) {
       complaint.materialReq,
       ''
     ];
-    const res = await fetch(url, {
+    const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [row] })
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'append', row: row })
     });
-    if (res.ok) {
+    const result = await res.json();
+    if (result.success) {
       notify('\u2713 Saved to Google Sheets!');
     } else {
-      const err = await res.json();
-      console.error('Sheet save error:', err);
-      notify('\u26A0 Saved locally but Google Sheets write failed (check API key permissions)');
+      console.error('Sheet save error:', result.error);
+      notify('\u26A0 Saved locally but Google Sheets write failed: ' + result.error);
     }
   } catch (err) {
     console.error('Sheet append error:', err);
@@ -491,11 +500,11 @@ async function appendToSheet(complaint) {
   }
 }
 
-// ===== UPDATE ROW IN GOOGLE SHEETS =====
+// ===== UPDATE ROW IN GOOGLE SHEETS (via Apps Script) =====
+// NOTE: API keys cannot write to Sheets. We use a Google Apps Script Web App as a proxy instead.
 async function updateSheetRow(rowIndex, complaint) {
+  if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') return;
   try {
-    const range = encodeURIComponent(SHEET_NAME) + '!A' + (rowIndex + 1) + ':N' + (rowIndex + 1);
-    const url = `${SHEETS_API}/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
     const row = [
       rowIndex,
       complaint.companyName,
@@ -512,10 +521,10 @@ async function updateSheetRow(rowIndex, complaint) {
       complaint.materialReq,
       ''
     ];
-    await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [row] })
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'update', rowIndex: rowIndex + 1, row: row })
     });
   } catch (err) {
     console.error('Sheet update error:', err);
