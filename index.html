@@ -3,366 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EMR Tap Changers — Gujarat Service Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<title>EMR Tap Changers — OLTC Service Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --red: #BE1E2D; --dark-red: #8B1520; --red-glow: rgba(190,30,45,0.35);
-  --grey: #6E6E6E; --dark-grey: #3A3A3A; --light-grey: #B0B0B0;
-  --bg: #131316; --bg-card: #1c1c22; --bg-dark: #0e0e11; --bg-light: #252530;
-  --text-primary: #f0f0f2; --text-secondary: #a0a0a8; --text-muted: #5a5a66;
-  --border: #2a2a36; --green: #4ade80; --blue: #5b9bd5;
+:root{
+  --bg:#f2ede4;--card:#ffffff;--card2:#faf8f4;
+  --accent:#f5c422;--accent-dark:#d4a80e;--accent-light:#fff8e1;
+  --red:#e53935;--red-light:#fff0ef;--red-mid:rgba(229,57,53,0.12);
+  --green:#16a34a;--green-light:#f0fdf4;
+  --blue:#3b82f6;--blue-light:#eff6ff;
+  --dark:#111111;--dark2:#222222;
+  --text:#111111;--text2:#555555;--text3:#999999;--text4:#cccccc;
+  --border:#e8e3d8;--border2:#f0ece4;
+  --shadow:0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+  --radius:20px;--radius-sm:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg-dark)}::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
-@keyframes slideIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.55}}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes countUp{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes barGrow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+@keyframes ringAnim{from{stroke-dashoffset:var(--ring-start)}to{stroke-dashoffset:var(--ring-end)}}
 
-.header{background:linear-gradient(135deg,var(--bg-dark),var(--bg-card));border-bottom:2px solid rgba(190,30,45,0.3);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16;position:sticky;top:0;z-index:100}
-.header-left{display:flex;align-items:center;gap:16}
-.header-divider{width:1px;height:38px;background:var(--border);margin:0 4px}
-.header-title{font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px}
-.header-sub{font-size:10.5px;color:var(--red);font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-top:2px}
-.header-actions{display:flex;gap:10;flex-wrap:wrap}
+/* ── HEADER ── */
+.header{
+  background:var(--bg);
+  padding:0 40px;height:68px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-badge{display:flex;align-items:baseline;gap:0;line-height:1;padding:2px 0;background:transparent}
+.logo-em{font-size:28px;font-weight:900;color:#cc1c1c;letter-spacing:-1px;font-family:'Inter',sans-serif;line-height:1}
+.logo-r{font-size:28px;font-weight:900;color:#888888;letter-spacing:-1px;font-family:'Inter',sans-serif;line-height:1}
+.logo-name{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.logo-sub{font-size:9px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px}
 
-.btn-primary{background:linear-gradient(135deg,var(--red),var(--dark-red));color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 18px var(--red-glow);font-family:inherit;transition:all 0.2s}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--red-glow)}
-.btn-outline{background:transparent;color:var(--red);border:1.5px solid rgba(190,30,45,0.4);border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s}
-.btn-outline:hover{background:rgba(190,30,45,0.08);border-color:var(--red)}
-.btn-mail{background:linear-gradient(135deg,#1a73e8,#1557b0);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(26,115,232,0.3);transition:all 0.2s;display:flex;align-items:center;gap:8}
-.btn-mail:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,115,232,0.4)}
-.btn-mail svg{width:16px;height:16px;fill:#fff}
-.btn-small{border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;transition:all 0.15s;border:1px solid}
-.btn-view{background:rgba(110,110,110,0.12);border-color:rgba(110,110,110,0.25);color:var(--light-grey)}
-.btn-view:hover{background:rgba(110,110,110,0.22)}
-.btn-edit{background:rgba(190,30,45,0.08);border-color:rgba(190,30,45,0.2);color:var(--red)}
-.btn-edit:hover{background:rgba(190,30,45,0.18)}
-.btn-del{background:rgba(200,60,60,0.1);border-color:rgba(200,60,60,0.2);color:#cc5e5e}
-.btn-del:hover{background:rgba(200,60,60,0.2)}
+/* NAV */
+.nav{display:flex;gap:4px;background:rgba(0,0,0,0.04);padding:4px;border-radius:14px}
+.nav-btn{padding:7px 16px;border:none;background:transparent;border-radius:10px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.18s;white-space:nowrap}
+.nav-btn.active{background:var(--dark);color:white;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.nav-btn:hover:not(.active){background:rgba(0,0,0,0.06)}
 
-.content{padding:24px 28px;max-width:1440px;margin:0 auto}
-.stats-map{display:flex;gap:24;margin-bottom:28;flex-wrap:wrap}
-.stats-col{flex:1 1 420px;display:flex;flex-direction:column;gap:14}
-.stats-row{display:flex;gap:14;flex-wrap:wrap}
-.stat-card{border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14;flex:1;min-width:145;animation:fadeUp 0.5s ease both}
-.stat-card:nth-child(2){animation-delay:0.08s}.stat-card:nth-child(3){animation-delay:0.16s}
-.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.stat-value{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace}
-.stat-label{font-size:10.5px;color:var(--text-muted);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+/* HEADER RIGHT */
+.header-right{display:flex;align-items:center;gap:10px}
+.live-clock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);font-weight:600;background:rgba(0,0,0,0.05);padding:7px 13px;border-radius:9px}
+.btn-dark{background:var(--dark);color:white;border:none;border-radius:22px;padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
+.btn-dark:hover{opacity:0.85}
+.btn-outline{background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:22px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.btn-outline:hover{border-color:var(--dark);color:var(--dark)}
 
-.workload-card{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--bg-card);animation:fadeUp 0.5s ease 0.2s both}
-.section-title{font-size:12px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
-.eng-row{display:flex;align-items:center;gap:12;margin-bottom:12}
-.eng-avatar{width:32px;height:32px;border-radius:8px;background:rgba(190,30,45,0.1);border:1px solid rgba(190,30,45,0.18);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace}
-.eng-info{flex:1}.eng-name{font-size:13px;font-weight:600;color:var(--text-primary)}
-.eng-bar{display:flex;gap:3px;margin-top:5px;height:5px;border-radius:3px;overflow:hidden;background:var(--bg-dark)}
-.eng-bar-done{background:var(--green);border-radius:3px}.eng-bar-open{background:var(--red);border-radius:3px}
-.eng-stats{font-size:11px;color:var(--text-muted);white-space:nowrap}.eng-stats .done{color:var(--green)}.eng-stats .open{color:var(--red)}
+/* ── MAIN ── */
+.main{padding:32px 40px;max-width:1620px;margin:0 auto}
 
-.map-card{flex:1 1 300px;max-width:420px;border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--bg-card);animation:fadeUp 0.5s ease 0.25s both}
-.filters{display:flex;gap:12;margin-bottom:20;flex-wrap:wrap;align-items:center;animation:fadeUp 0.5s ease 0.3s both}
-.search-input{flex:1 1 240px;max-width:380px;padding:10px 16px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
-.search-input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(190,30,45,0.12)}
-.search-input::placeholder{color:var(--text-muted)}
-.filter-btn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.2s}
-.filter-btn:hover{border-color:rgba(190,30,45,0.4);color:var(--red)}
-.filter-btn.active{border-color:var(--red);background:rgba(190,30,45,0.1);color:var(--red)}
+/* ── WELCOME ── */
+.welcome-row{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:28px;flex-wrap:wrap}
+.welcome-left{flex:1;min-width:300px}
+.welcome-title{font-size:30px;font-weight:900;letter-spacing:-1px;color:var(--dark);margin-bottom:18px;animation:fadeUp 0.5s ease both}
+.metric-bars{display:flex;gap:10px;flex-wrap:wrap;animation:fadeUp 0.5s ease 0.1s both}
+.metric-pill{background:var(--card);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);min-width:160px;flex:1;max-width:200px}
+.metric-pill-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.metric-pill-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+.metric-pill-pct{font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px}
+.pill-track{height:6px;background:var(--border2);border-radius:3px;overflow:hidden}
+.pill-bar{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(0.22,1,0.36,1)}
 
-.table-wrap{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--bg-card);animation:fadeUp 0.5s ease 0.35s both}
+/* BIG STATS */
+.big-stats{display:flex;gap:8px;flex-shrink:0;animation:fadeUp 0.5s ease 0.15s both}
+.big-stat{text-align:center;padding:0 24px;border-left:1px solid var(--border)}
+.big-stat:first-child{border-left:none}
+.big-stat-icon{font-size:16px;margin-bottom:4px;opacity:0.5}
+.big-stat-val{font-size:42px;font-weight:900;line-height:1;letter-spacing:-2px;color:var(--dark)}
+.big-stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;font-weight:600}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:270px 1fr 270px 260px;gap:18px;margin-bottom:24px}
+
+/* ── CARD BASE ── */
+.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);position:relative;overflow:hidden;animation:fadeUp 0.5s ease both}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-hd-title{font-size:14px;font-weight:700;color:var(--dark)}
+.card-hd-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.card-tag{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px}
+.tag-yellow{background:var(--accent-light);color:var(--accent-dark)}
+.tag-red{background:var(--red-light);color:var(--red)}
+.tag-green{background:var(--green-light);color:var(--green)}
+
+/* ── MAP CARD (dark) ── */
+.map-card{background:linear-gradient(160deg,#141c2e,#0d1520);color:white;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;animation:fadeUp 0.5s ease 0.05s both}
+.map-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(245,196,34,0.08),transparent 70%)}
+.map-card-title{font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:4px}
+.map-card-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:16px}
+
+/* ── PROGRESS CARD ── */
+.progress-big{font-size:40px;font-weight:900;letter-spacing:-2px;color:var(--dark);line-height:1}
+.progress-label{font-size:11px;color:var(--text3);margin-top:2px}
+.chart-area{display:flex;align-items:flex-end;gap:8px;height:90px;margin:20px 0 10px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.bar-block{width:100%;border-radius:8px 8px 0 0;transform-origin:bottom}
+.bar-day{font-size:9px;color:var(--text3);font-weight:500}
+.bar-tip{font-size:9px;font-weight:700;color:var(--text2)}
+
+/* ── CIRCULAR GAUGE ── */
+.gauge-ring{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0}
+.ring-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.ring-center{position:absolute;text-align:center}
+.ring-val{font-size:32px;font-weight:900;letter-spacing:-1px;color:var(--dark);line-height:1}
+.ring-sub{font-size:9px;color:var(--text3);margin-top:3px}
+.gauge-label{font-size:13px;font-weight:700;color:var(--dark);margin-top:14px}
+.gauge-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.gauge-track-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.mini-track{flex:1;min-width:60px;text-align:center}
+.mini-track-pct{font-size:13px;font-weight:800;color:var(--dark);margin-bottom:5px}
+.mini-track-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.mini-track-fill{height:100%;border-radius:2px}
+.mini-track-lbl{font-size:8px;color:var(--text3);font-weight:600}
+
+/* ── PENDING QUEUE CARD ── */
+.pending-card{animation-delay:0.1s}
+.pending-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border2);cursor:pointer;transition:background 0.15s;border-radius:8px;margin:0 -4px;padding-left:4px;padding-right:4px}
+.pending-item:hover{background:var(--bg)}
+.pending-item:last-child{border-bottom:none}
+.pi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.pi-body{flex:1;min-width:0}
+.pi-company{font-size:12px;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-issue{font-size:10px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-right{flex-shrink:0;text-align:right}
+.pi-days{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.pi-eng{font-size:9px;color:var(--text3);margin-top:3px}
+.pending-empty-msg{padding:24px;text-align:center;color:var(--text3);font-size:12px}
+
+/* ── TABLE SECTION ── */
+.table-section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;animation:fadeUp 0.5s ease 0.2s both}
+.table-topbar{padding:22px 28px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.table-topbar-title{font-size:16px;font-weight:800;color:var(--dark)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:16px 28px;border-bottom:1px solid var(--border2);align-items:center}
+.search-input{flex:1;min-width:220px;max-width:360px;padding:10px 16px;border-radius:22px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--dark);background:white}
+.search-input::placeholder{color:var(--text4)}
+.filter-btn{padding:8px 16px;border-radius:22px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-weight:600;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s}
+.filter-btn.active,.filter-btn:hover{border-color:var(--dark);background:var(--dark);color:white}
 .table-scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead tr{background:linear-gradient(135deg,var(--bg-dark),var(--bg-light))}
-th{padding:14px 12px;text-align:left;color:var(--red);font-size:10px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;border-bottom:2px solid rgba(190,30,45,0.2);white-space:nowrap}
-td{padding:12px}tr.row-alt{background:rgba(14,14,17,0.45)}
-tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{background:rgba(190,30,45,0.04)}
-.serial{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--red)}
-.cell-bold{font-weight:600;color:var(--text-primary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cell-dim{color:var(--text-secondary)}.cell-mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-secondary)}
+thead tr{background:var(--card2)}
+th{padding:14px 22px;text-align:left;font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border2);white-space:nowrap}
+td{padding:14px 22px;border-bottom:1px solid var(--border2);color:var(--text2)}
+tbody tr:hover td{background:#fdf9f0}
+tbody tr:last-child td{border-bottom:none}
+.cell-serial{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);font-weight:600}
+.cell-bold{font-weight:700;color:var(--dark);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.badge-pending{background:var(--red-light);color:var(--red)}
+.badge-complete{background:var(--green-light);color:var(--green)}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.bdot.pending-dot{animation:pulse 1.5s infinite}
+.pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 28px;border-top:1px solid var(--border2)}
+.page-btn{padding:7px 16px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-weight:600;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.18s}
+.page-btn:hover:not(:disabled){border-color:var(--dark);color:var(--dark)}.page-btn:disabled{opacity:0.25;cursor:default}
+.page-info{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
 
-.badge{display:inline-block;padding:4px 13px;border-radius:6px;font-size:10.5px;font-weight:800;letter-spacing:0.5px}
-.badge-pending{background:rgba(190,30,45,0.12);color:var(--red);border:1px solid rgba(190,30,45,0.3);animation:pulse 2s infinite}
-.badge-complete{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.25)}
+/* ── ACTION BUTTONS ── */
+.btn-small{border-radius:7px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all 0.15s;border:1.5px solid}
+.btn-view{background:var(--blue-light);border-color:rgba(59,130,246,0.25);color:var(--blue)}.btn-view:hover{background:rgba(59,130,246,0.18)}
+.btn-edit{background:var(--accent-light);border-color:rgba(245,196,34,0.4);color:var(--accent-dark)}.btn-edit:hover{background:rgba(245,196,34,0.25)}
+.btn-del{background:var(--red-light);border-color:rgba(229,57,53,0.2);color:var(--red)}.btn-del:hover{background:rgba(229,57,53,0.18)}
 
-.notification{position:fixed;top:24px;right:24px;z-index:2000;background:var(--bg-card);border:1.5px solid var(--red);border-radius:12px;padding:14px 26px;font-size:14px;font-weight:600;color:var(--red);box-shadow:0 8px 36px rgba(190,30,45,0.25);animation:slideIn 0.3s ease}
+/* ── MATERIAL PANEL ── */
+.material-panel{background:var(--card);border-radius:var(--radius);padding:26px 28px;box-shadow:var(--shadow);margin-bottom:20px;animation:fadeUp 0.5s ease 0.3s both;border-left:4px solid var(--accent)}
+.mat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mat-title{font-size:15px;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:10px}
+.mat-icon{width:34px;height:34px;border-radius:9px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:16px}
+.mat-badge{font-size:11px;color:var(--accent-dark);background:var(--accent-light);border-radius:20px;padding:4px 12px;font-weight:700}
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.modal{background:linear-gradient(160deg,var(--bg-dark),var(--bg-card));border:1.5px solid rgba(190,30,45,0.3);border-radius:20px;padding:32px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;animation:slideIn 0.3s ease}
-.modal-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px}
-.modal-serial{font-size:20px;font-weight:800;color:var(--text-primary);margin-top:4px}
-.detail-label{font-size:10px;color:var(--red);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.detail-value{font-size:14px;color:var(--text-primary);line-height:1.5;margin-bottom:16px}
-.btn-close-modal{width:100%;margin-top:8px;background:rgba(190,30,45,0.08);border:1.5px solid rgba(190,30,45,0.3);border-radius:10px;padding:11px;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
-.btn-close-modal:hover{background:rgba(190,30,45,0.15)}
+/* ── EMAIL INFO ── */
+.email-info{background:var(--card);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);margin-bottom:24px;animation:fadeUp 0.5s ease 0.35s both;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.email-icon{width:48px;height:48px;border-radius:13px;background:var(--dark);color:white;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.email-body{flex:1;min-width:200px}
+.email-title{font-size:14px;font-weight:800;color:var(--dark);margin-bottom:3px}
+.email-sub{font-size:11px;color:var(--text3);margin-bottom:10px}
+.etags{display:flex;gap:8px;flex-wrap:wrap}
+.etag{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.etag-dark{background:var(--dark);color:white}
+.etag-yellow{background:var(--accent-light);color:var(--accent-dark);border:1px solid rgba(245,196,34,0.4)}
+.etag-green{background:var(--green-light);color:var(--green)}
+.email-note{margin-top:10px;font-size:10px;color:var(--text3)}
 
-.form-panel{margin-top:28px;background:linear-gradient(160deg,var(--bg-dark),var(--bg-card));border:1.5px solid rgba(190,30,45,0.2);border-radius:20px;padding:32px;animation:slideIn 0.3s ease}
-.form-title{font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px}
-.form-sub{font-size:12px;color:var(--red);margin-bottom:24px}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-.form-label{font-size:10.5px;font-weight:700;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
-.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-dark);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(190,30,45,0.12)}
-.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted)}
-.form-select{cursor:pointer}.form-select option{background:var(--bg-dark);color:var(--text-primary)}
-.form-textarea{min-height:70px;resize:vertical}
+/* ── FORM ── */
+.form-panel{background:var(--card);border-radius:var(--radius);padding:32px 36px;box-shadow:var(--shadow);margin-bottom:24px;animation:slideIn 0.3s ease;border-top:3px solid var(--accent)}
+.form-title{font-size:18px;font-weight:900;color:var(--dark);margin-bottom:4px}
+.form-sub{font-size:11px;color:var(--text3);margin-bottom:24px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.form-label{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:all 0.2s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--dark);background:white;box-shadow:0 0 0 3px rgba(0,0,0,0.06)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text4)}
+.form-select{cursor:pointer}.form-select option{background:white;color:var(--text)}
+.form-textarea{min-height:72px;resize:vertical}
 .form-actions{display:flex;gap:12px;margin-top:24px}
-.btn-cancel{background:transparent;color:var(--text-muted);border:1.5px solid var(--border);border-radius:10px;padding:12px 24px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-cancel{background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:22px;padding:11px 24px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s}
+.btn-cancel:hover{border-color:var(--dark);color:var(--dark)}
 
-.pagination{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;animation:fadeUp 0.5s ease 0.4s both}
-.page-btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
-.page-btn:hover{border-color:rgba(190,30,45,0.4);color:var(--red)}
-.page-btn.active{border-color:var(--red);background:rgba(190,30,45,0.1);color:var(--red)}
-.page-btn:disabled{opacity:0.3;cursor:default}
-.page-info{font-size:12px;color:var(--text-muted);margin:0 8px}
+/* ── NOTIFICATION ── */
+.notification{position:fixed;top:20px;right:20px;z-index:3000;background:var(--dark);border-radius:12px;padding:12px 22px;font-size:13px;font-weight:600;color:white;box-shadow:var(--shadow-lg);animation:slideIn 0.3s ease;max-width:360px}
 
-/* EMAIL PANEL */
-.email-panel{margin-top:28px;background:linear-gradient(160deg,#0e1428,#151c36);border:1.5px solid rgba(26,115,232,0.25);border-radius:20px;padding:28px;animation:slideIn 0.3s ease}
-.email-panel-title{font-size:18px;font-weight:800;color:var(--text-primary);margin-bottom:4px;display:flex;align-items:center;gap:10}
-.email-panel-sub{font-size:12px;color:#5e9cff;margin-bottom:20px}
-.email-config{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
-.email-label{font-size:10.5px;font-weight:700;color:#5e9cff;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
-.email-input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #2a3560;background:#0e1428;color:var(--text-primary);font-size:14px;font-family:inherit;outline:none}
-.email-input:focus{border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,0.15)}
-.email-input::placeholder{color:#4a5580}
-.schedule-row{display:flex;align-items:center;gap:16;margin-top:18px;flex-wrap:wrap}
-.schedule-toggle{display:flex;align-items:center;gap:10;cursor:pointer;font-weight:600;color:var(--text-secondary);font-size:13px}
-.toggle-track{width:44px;height:24px;border-radius:12px;background:#2a3560;position:relative;transition:all 0.3s;cursor:pointer}
-.toggle-track.on{background:#1a73e8}
-.toggle-dot{width:20px;height:20px;border-radius:10px;background:#fff;position:absolute;top:2px;left:2px;transition:all 0.3s}
-.toggle-track.on .toggle-dot{left:22px}
-.schedule-time{display:flex;align-items:center;gap:8}
-.schedule-status{margin-top:14px;padding:12px 16px;border-radius:10px;background:rgba(26,115,232,0.08);border:1px solid rgba(26,115,232,0.2);font-size:12px;color:#5e9cff;display:flex;align-items:center;gap:8}
-.schedule-status .dot{width:8px;height:8px;border-radius:4px;background:#1a73e8;animation:pulse 2s infinite}
-.email-preview{margin-top:20px;border:1px solid #2a3560;border-radius:14px;overflow:hidden}
-.email-preview-header{padding:12px 16px;background:#0a0f1e;display:flex;justify-content:space-between;align-items:center}
-.email-preview-title{font-size:11px;font-weight:700;color:#5e9cff;letter-spacing:1px;text-transform:uppercase}
-.email-preview-body{padding:16px;background:#fff;color:#333;font-size:13px;max-height:300px;overflow-y:auto}
-.email-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:white;border-radius:24px;padding:32px;max-width:580px;width:100%;max-height:88vh;overflow-y:auto;animation:slideIn 0.3s ease;box-shadow:var(--shadow-lg)}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border2)}
+.modal-serial{font-size:20px;font-weight:900;color:var(--dark);font-family:'JetBrains Mono',monospace;margin-top:4px}
+.detail-label{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;margin-top:14px}
+.detail-value{font-size:13px;color:var(--dark);line-height:1.6}
+.btn-close-modal{width:100%;margin-top:20px;background:var(--dark);border:none;border-radius:12px;padding:12px;color:white;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.2s}
+.btn-close-modal:hover{opacity:0.85}
 
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite}
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite}
 
-.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-muted);align-items:center}
-.footer-left{display:flex;align-items:center;gap:8}
+/* ── FOOTER ── */
+.footer{padding:24px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--text3);align-items:center;margin-top:8px}
 
-@media(max-width:768px){.header{padding:14px 16px}.content{padding:16px}.stats-col{flex:1 1 100%}.map-card{max-width:100%}.form-grid,.email-config{grid-template-columns:1fr}}
+/* ── DOCUMENT CARD ── */
+.doc-summary-row{display:flex;gap:8px;margin-bottom:16px}
+.doc-sum-box{flex:1;background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.doc-sum-val{font-size:24px;font-weight:900;line-height:1}
+.doc-sum-lbl{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.doc-list{overflow-y:auto;max-height:310px;display:flex;flex-direction:column;gap:9px;padding-right:2px}
+.doc-item{background:var(--bg);border-radius:12px;padding:12px 14px;border:1.5px solid var(--border2);transition:border-color 0.18s}
+.doc-item:hover{border-color:var(--border)}
+.doc-item-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px}
+.doc-item-name{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.doc-item-meta{font-size:9px;color:var(--text3)}
+.doc-status-chips{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.doc-chip{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.doc-chip-ok{background:var(--green-light);color:var(--green)}
+.doc-chip-no{background:var(--red-light);color:var(--red)}
+.doc-chip-mk16-no{background:var(--blue-light);color:var(--blue)}
+.doc-btns{display:flex;flex-direction:column;gap:7px}
+.doc-btn-full{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border-radius:11px;cursor:pointer;border:1.5px solid;transition:all 0.18s;font-family:'Inter',sans-serif;text-decoration:none;text-align:left}
+.doc-btn-full-label{font-size:12px;font-weight:700;color:inherit;line-height:1}
+.doc-btn-full-sub{font-size:9px;opacity:0.6;margin-top:2px}
+.doc-btn-full-arrow{margin-left:auto;font-size:13px;opacity:0.4;flex-shrink:0}
+.doc-btn-full-mom{background:#fff8e1;border-color:rgba(245,196,34,0.5);color:#b8860b}
+.doc-btn-full-mom:hover{background:#fef3b2;transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,196,34,0.2)}
+.doc-btn-full-mk16{background:var(--blue-light);border-color:rgba(59,130,246,0.3);color:var(--blue)}
+.doc-btn-full-mk16:hover{background:#dbeafe;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.15)}
+.doc-btn-full-done{background:var(--green-light);border-color:rgba(22,163,74,0.3);color:var(--green)}
+.doc-btn-full-done:hover{background:#dcfce7;transform:translateY(-1px)}
+/* ── OLTC OVERHAULING CHECKBOX ── */
+.oltc-check-row{display:flex;align-items:center;gap:9px;margin-top:4px;padding:10px 13px;border-radius:11px;border:1.5px solid var(--border2);background:var(--bg);cursor:pointer;transition:all 0.18s;user-select:none}
+.oltc-check-row:hover{border-color:var(--green);background:var(--green-light)}
+.oltc-check-row.checked{border-color:rgba(22,163,74,0.5);background:var(--green-light)}
+.oltc-check-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.18s;font-size:12px}
+.oltc-check-row.checked .oltc-check-box{border-color:var(--green);background:var(--green);color:white}
+.oltc-check-label{font-size:11px;font-weight:700;color:var(--text2);flex:1}
+.oltc-check-row.checked .oltc-check-label{color:var(--green)}
+.oltc-check-sub{font-size:9px;color:var(--text3);margin-top:1px}
+.oltc-check-row.checked .oltc-check-sub{color:rgba(22,163,74,0.7)}
+
+/* ── UPLOAD MODAL ── */
+.upload-modal{background:white;border-radius:24px;padding:32px;max-width:460px;width:100%;animation:slideIn 0.3s ease;box-shadow:var(--shadow-lg)}
+.upload-zone{border:2.5px dashed var(--border);border-radius:14px;padding:30px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);margin-bottom:14px}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.upload-zone-icon{font-size:40px;margin-bottom:10px;display:block}
+.upload-zone-text{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.upload-zone-sub{font-size:11px;color:var(--text3)}
+.upload-preview{background:var(--bg);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;border:1.5px solid var(--border2)}
+.upload-preview-info{flex:1;min-width:0}
+.upload-preview-name{font-size:12px;font-weight:700;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-preview-size{font-size:10px;color:var(--text3);margin-top:2px}
+.upload-prog-wrap{margin-bottom:14px}
+.upload-prog-bar-bg{height:5px;background:var(--border2);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.upload-prog-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),#22c55e);transition:width 0.4s ease}
+.upload-prog-status{font-size:11px;color:var(--text3);text-align:center}
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.main-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}.header{padding:0 20px}.main{padding:20px}.big-stats{display:none}}
+@media(max-width:600px){.nav{display:none}.metric-bars{flex-direction:column}}
 </style>
 </head>
 <body>
 
 <div id="notification" class="notification" style="display:none"></div>
 
-<!-- HEADER -->
+<!-- ══ HEADER ══ -->
 <div class="header">
-  <div class="header-left">
-    <svg viewBox="0 0 100 38" style="width:78px;height:30px">
-      <text x="0" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#BE1E2D" letter-spacing="-3">EM</text>
-      <text x="58" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#6E6E6E" letter-spacing="-1">R</text>
-    </svg>
-    <div class="header-divider"></div>
+  <div class="logo-wrap">
+    <div class="logo-badge"><span class="logo-em">EM</span><span class="logo-r">R</span></div>
     <div>
-      <div class="header-title">Tap Changers</div>
-      <div class="header-sub">Service Engineer Dashboard — Gujarat Region</div>
+      <div class="logo-name">TAP CHANGERS</div>
+      <div class="logo-sub">OLTC Service Dashboard</div>
     </div>
   </div>
-  <div class="header-actions">
-    <button class="btn-primary" onclick="openNewForm()">+ New Complaint</button>
-    <button class="btn-mail" onclick="openEmailPanel()">
-      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-      Email Report
-    </button>
-    <button class="btn-outline" onclick="loadFromSheets()" title="Refresh from Google Sheets">↻ Sync</button>
-    <button class="btn-outline" onclick="exportCSV()">Export CSV</button>
+
+  <div class="nav">
+    <button class="nav-btn active">Dashboard</button>
+    <button class="nav-btn" onclick="document.querySelector('.table-section').scrollIntoView({behavior:'smooth'})">Complaints</button>
+    <button class="nav-btn" onclick="document.querySelector('.map-card').scrollIntoView({behavior:'smooth'})">Map</button>
+    <button class="nav-btn" onclick="document.querySelector('.material-panel').scrollIntoView({behavior:'smooth'})">Materials</button>
+    <button class="nav-btn" onclick="document.querySelector('.email-info').scrollIntoView({behavior:'smooth'})">Reports</button>
+  </div>
+
+  <div class="header-right">
+    <div class="live-clock" id="liveClock">00:00:00</div>
+    <button class="btn-dark" onclick="openNewForm()">+ New Complaint</button>
+    <button class="btn-outline" onclick="loadFromSheets()">↻ Sync</button>
+    <button class="btn-outline" onclick="exportCSV()">⬇ CSV</button>
   </div>
 </div>
 
-<div class="content">
-  <div class="stats-map">
-    <div class="stats-col">
-      <div class="stats-row" id="statsRow"></div>
-      <div class="workload-card">
-        <div class="section-title">Engineer Workload</div>
-        <div id="workloadContent"></div>
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- WELCOME ROW -->
+  <div class="welcome-row">
+    <div class="welcome-left">
+      <div class="welcome-title">Welcome, Sri Vignesh 👋</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-top:-10px;margin-bottom:14px;animation:fadeUp 0.5s ease 0.08s both">Gujarat Regional Engineer — <span style="color:#cc1c1c;font-weight:800">EMR</span></div>
+      <div class="metric-bars" id="metricBars">
+        <!-- filled by JS -->
       </div>
     </div>
-    <div class="map-card">
-      <div class="section-title">Gujarat Service Map</div>
-      <div id="mapContainer"></div>
+    <div class="big-stats" id="bigStats">
+      <!-- filled by JS -->
     </div>
   </div>
 
-  <div class="filters">
-    <input type="text" class="search-input" id="searchInput" placeholder="Search across complaints..." oninput="currentPage=1;renderAll()">
-    <div id="filterBtns"></div>
+  <!-- MAIN 4-CARD GRID -->
+  <div class="main-grid">
+
+    <!-- CARD 1: Gujarat Map (dark) -->
+    <div class="map-card">
+      <div class="map-card-title">Gujarat Service Map</div>
+      <div class="map-card-sub">Live complaint locations</div>
+      <div id="mapContainer" style="flex:1;min-height:340px"></div>
+    </div>
+
+    <!-- CARD 2: Document Upload (MOM & MK16) -->
+    <div class="card" style="animation-delay:0.06s">
+      <div class="card-hd">
+        <div>
+          <div class="card-hd-title">Site Documents</div>
+          <div class="card-hd-sub">MOM & MK16 submission tracker</div>
+        </div>
+        <span class="card-tag tag-yellow">📁 Drive</span>
+      </div>
+      <!-- Summary row -->
+      <div class="doc-summary-row">
+        <div class="doc-sum-box">
+          <div class="doc-sum-val" id="docMomCount" style="color:#b8860b">0</div>
+          <div class="doc-sum-lbl">MOM Needed</div>
+        </div>
+        <div class="doc-sum-box">
+          <div class="doc-sum-val" id="docMk16Count" style="color:var(--blue)">0</div>
+          <div class="doc-sum-lbl">MK16 Needed</div>
+        </div>
+        <div class="doc-sum-box">
+          <div class="doc-sum-val" id="docDoneCount" style="color:var(--green)">0</div>
+          <div class="doc-sum-lbl">Docs Uploaded</div>
+        </div>
+      </div>
+      <!-- Per-site doc list -->
+      <div class="doc-list" id="docList">
+        <div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">Loading...</div>
+      </div>
+    </div>
+
+    <!-- CARD 3: Circular Completion Gauge -->
+    <div class="card" style="animation-delay:0.1s">
+      <div class="card-hd">
+        <div>
+          <div class="card-hd-title">Completion Rate</div>
+          <div class="card-hd-sub">Overall service performance</div>
+        </div>
+      </div>
+      <div class="gauge-ring">
+        <div class="ring-wrap">
+          <svg width="150" height="150" viewBox="0 0 150 150">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f5c422"/>
+                <stop offset="100%" stop-color="#22c55e"/>
+              </linearGradient>
+            </defs>
+            <!-- Track -->
+            <circle cx="75" cy="75" r="58" fill="none" stroke="#f0ece4" stroke-width="12"/>
+            <!-- Fill ring -->
+            <circle id="ringFill" cx="75" cy="75" r="58" fill="none"
+              stroke="url(#ringGrad)" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray="364.4" stroke-dashoffset="364.4"
+              transform="rotate(-90 75 75)"
+              style="transition:stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1)"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-val" id="ringVal">0%</div>
+            <div class="ring-sub">complete</div>
+          </div>
+        </div>
+        <div class="gauge-label" id="gaugeLabel">0 of 0 jobs done</div>
+        <div class="gauge-track-row" id="gaugeTrackRow"><!-- JS --></div>
+      </div>
+    </div>
+
+    <!-- CARD 4: Pending Queue -->
+    <div class="card pending-card">
+      <div class="card-hd">
+        <div>
+          <div class="card-hd-title">Pending Queue</div>
+          <div class="card-hd-sub">Most urgent first</div>
+        </div>
+        <span class="card-tag tag-red" id="pendingCountBadge">0</span>
+      </div>
+      <div id="pendingSitesList" style="overflow-y:auto;max-height:340px"><!-- JS --></div>
+    </div>
+
   </div>
 
-  <div class="table-wrap">
+  <!-- TABLE SECTION -->
+  <div class="table-section">
+    <div class="table-topbar">
+      <div class="table-topbar-title">Complaint Register</div>
+    </div>
+    <div class="filters">
+      <input type="text" class="search-input" id="searchInput"
+        placeholder="🔍  Search complaints, companies, engineers..."
+        oninput="currentPage=1;debouncedRender()">
+      <div id="filterBtns" style="display:flex;gap:6px"></div>
+    </div>
     <div class="table-scroll">
       <table>
         <thead><tr>
-          <th>Sr. No</th><th>Company</th><th>Location</th><th>Customer</th>
-          <th>Job Serial</th><th>Status</th><th>Planned</th><th>Engineer</th><th>Actions</th>
+          <th>Serial No</th><th>Company</th><th>Location</th><th>Customer</th>
+          <th>Job No</th><th>Status</th><th>Planned Date</th><th>Engineer</th><th>Actions</th>
         </tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
+    <div class="pagination" id="pagination"></div>
   </div>
-  <div class="pagination" id="pagination"></div>
 
-  <!-- MATERIAL REQUIRED PANEL -->
-  <div id="materialPanel" style="margin-top:24px;border:1.5px solid rgba(245,127,23,0.3);border-radius:16px;background:var(--bg-card);padding:24px;animation:fadeUp 0.5s ease 0.4s both">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div class="section-title" style="color:#F59E0B;margin:0">&#128230; Material Required (Pending Sites Only)</div>
-      <span id="materialCount" style="font-size:12px;color:var(--text-muted)"></span>
+  <!-- MATERIAL PANEL -->
+  <div class="material-panel">
+    <div class="mat-header">
+      <div class="mat-title">
+        <div class="mat-icon">🔧</div>
+        Material Requirements — Pending Sites
+      </div>
+      <span class="mat-badge" id="materialCount">0 items</span>
     </div>
     <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="background:rgba(245,158,11,0.12)">
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Sr. No</th>
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Company</th>
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Location</th>
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Issue</th>
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Material Required</th>
-            <th style="padding:12px 10px;text-align:left;color:#F59E0B;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;border-bottom:2px solid rgba(245,158,11,0.2)">Engineer</th>
-          </tr>
-        </thead>
+      <table>
+        <thead><tr style="background:#fffbee">
+          <th style="color:var(--accent-dark)">Serial No</th>
+          <th style="color:var(--accent-dark)">Company</th>
+          <th style="color:var(--accent-dark)">Location</th>
+          <th style="color:var(--accent-dark)">Issue</th>
+          <th style="color:var(--accent-dark)">Material Required</th>
+          <th style="color:var(--accent-dark)">Engineer</th>
+        </tr></thead>
         <tbody id="materialBody"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- EMAIL PANEL -->
-  <div id="emailPanel" class="email-panel" style="display:none">
-    <div class="email-panel-title">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="#1a73e8"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-      Email Pending Report to Manager
-    </div>
-    <div class="email-panel-sub">Send pending complaints &amp; material requirements via Gmail</div>
-    <div class="email-config">
-      <div>
-        <label class="email-label">Manager Email *</label>
-        <input class="email-input" id="managerEmail" placeholder="manager@emr.com" value="j.sudhakar@emr.global">
+  <!-- EMAIL INFO -->
+  <div class="email-info">
+    <div class="email-icon">📧</div>
+    <div class="email-body">
+      <div class="email-title">Automated Daily Email Reports</div>
+      <div class="email-sub">Reports are sent automatically every day — no action needed from this dashboard.</div>
+      <div class="etags">
+        <span class="etag etag-dark">⏰ 08:00 PM Daily</span>
+        <span class="etag etag-yellow">📬 j.sudhakar@emr.global</span>
+        <span class="etag etag-green">✓ Active via Vercel</span>
       </div>
-      <div>
-        <label class="email-label">CC (optional)</label>
-        <input class="email-input" id="ccEmail" placeholder="team@emr.com" value="SHREELANJ@emr.global,service@emr.global">
-      </div>
-      <div>
-        <label class="email-label">Your Name</label>
-        <input class="email-input" id="senderName" placeholder="Vignesh" value="">
-      </div>
-    </div>
-
-    <!-- SCHEDULE: Step 1 = Set time, Step 2 = Toggle ON -->
-    <div class="schedule-row" style="flex-wrap:wrap;align-items:center">
-      <div class="schedule-time" style="display:flex;align-items:center;gap:8px">
-        <label class="email-label" style="margin:0">Schedule Time:</label>
-        <input type="time" class="email-input" id="scheduleTime" value="09:00" style="width:130px" onchange="if(scheduleActive)startSchedule()">
-      </div>
-      <label class="schedule-toggle" onclick="toggleSchedule()" style="margin-left:16px">
-        <div class="toggle-track" id="scheduleToggle"><div class="toggle-dot"></div></div>
-        Enable Daily Auto-Email
-      </label>
-    </div>
-    <div id="scheduleStatus" style="display:none" class="schedule-status">
-      <span class="dot"></span> Schedule ACTIVE — sending at <strong id="nextSendTime">09:00 AM</strong>
-      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:13px;color:#1a73e8;font-weight:700" id="liveClock"></span>
-    </div>
-    <div id="scheduleLog" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;background:#0a0f1e;font-family:'JetBrains Mono',monospace;font-size:11px;color:#5e9cff;max-height:100px;overflow-y:auto"></div>
-
-    <!-- PREVIEW -->
-    <div class="email-preview">
-      <div class="email-preview-header">
-        <span class="email-preview-title">Email Preview</span>
-        <span style="font-size:11px;color:var(--text-muted)" id="previewCount"></span>
-      </div>
-      <div class="email-preview-body" id="emailPreview"></div>
-    </div>
-
-    <div class="email-actions">
-      <button class="btn-mail" onclick="sendEmailNow()" id="sendBtn">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        Send Now via Gmail
-      </button>
-      <button class="btn-outline" onclick="copyEmailHTML()" style="border-color:rgba(26,115,232,0.4);color:#5e9cff">Copy HTML</button>
-      <button class="btn-outline" onclick="testSchedule()" style="border-color:rgba(74,222,128,0.4);color:#4ade80">Test Schedule Now</button>
-      <button class="btn-cancel" onclick="closeEmailPanel()">Close</button>
+      <div class="email-note">To change the schedule or recipient → go to Vercel → Settings → Environment Variables → update <code>EMAIL_TO</code> and <code>SCHEDULE_TIME</code>.</div>
     </div>
   </div>
 
   <!-- COMPLAINT FORM -->
   <div id="formPanel" class="form-panel" style="display:none">
     <div class="form-title" id="formTitle">Register New Complaint</div>
-    <div class="form-sub" id="formSub">Fill in all the details to register a new service complaint</div>
+    <div class="form-sub" id="formSub">Fill in all details to register a new OLTC service complaint</div>
     <div class="form-grid">
       <div><label class="form-label">Company Name *</label><input class="form-input" id="f_companyName" placeholder="Company Name"></div>
       <div><label class="form-label">Location *</label>
         <select class="form-select" id="f_location"><option value="">Select City</option>
-          <option>Adipur</option>
-          <option>Ahmedabad</option>
-          <option>Ahmedabad Bhavla</option>
-          <option>Ambaji</option>
-          <option>Anand</option>
-          <option>Anjar</option>
-          <option>Baroda</option>
-          <option>Bhavnagar</option>
-          <option>Bhuj</option>
-          <option>Changodar</option>
-          <option>Deesa</option>
-          <option>Dhanera</option>
-          <option>Gandhinagar</option>
-          <option>Halol</option>
-          <option>Himmat Nagar</option>
-          <option>Jamnagar</option>
-          <option>Kadi</option>
-          <option>Karja</option>
-          <option>Karjan</option>
-          <option>Makarpura</option>
-          <option>Morbi</option>
-          <option>Moriya Ahmedabad</option>
-          <option>Nandasan</option>
-          <option>Otha Gujarat</option>
-          <option>Palanpur</option>
-          <option>Por</option>
-          <option>Por Gujarat</option>
-          <option>Rajkot</option>
-          <option>Sanand</option>
-          <option>Savli</option>
-          <option>Surat</option>
-          <option>Surendra Nagar</option>
-          <option>Tharad</option>
-          <option>Vadod</option>
-          <option>Vapi</option>
-          <option>Wagodiya</option>
+          <option>Adipur</option><option>Ahmedabad</option><option>Ahmedabad Bhavla</option>
+          <option>Ambaji</option><option>Anand</option><option>Anjar</option>
+          <option>Baroda</option><option>Bhavnagar</option><option>Bhuj</option>
+          <option>Changodar</option><option>Deesa</option><option>Dhanera</option>
+          <option>Gandhinagar</option><option>Halol</option><option>Himmat Nagar</option>
+          <option>Jamnagar</option><option>Kadi</option><option>Karja</option>
+          <option>Karjan</option><option>Makarpura</option><option>Morbi</option>
+          <option>Moriya Ahmedabad</option><option>Nandasan</option><option>Otha Gujarat</option>
+          <option>Palanpur</option><option>Por</option><option>Por Gujarat</option>
+          <option>Rajkot</option><option>Sanand</option><option>Savli</option>
+          <option>Surat</option><option>Surendra Nagar</option><option>Tharad</option>
+          <option>Vadod</option><option>Vapi</option><option>Wagodiya</option>
         </select>
       </div>
       <div><label class="form-label">Customer Name *</label><input class="form-input" id="f_customerName" placeholder="Customer Name"></div>
       <div><label class="form-label">Job Serial No</label><input class="form-input" id="f_jobSerialNo" placeholder="Job Serial No"></div>
       <div><label class="form-label">Engineer Assigned</label>
         <select class="form-select" id="f_engineerAssigned"><option value="">Select Engineer</option>
-          <option>Pandiyan</option>
-          <option>Sathish</option>
-          <option>Vasudevan & Vignesh</option>
-          <option>Vignesh</option>
-          <option>Vignesh & Sridhar</option>
-          <option>Vignesh &Srinivasan</option>
+          <option>Pandiyan</option><option>Sathish</option>
+          <option>Vasudevan & Vignesh</option><option>Vignesh</option>
+          <option>Vignesh & Sridhar</option><option>Vignesh &Srinivasan</option>
           <option>Vignesh And Sridhar</option>
-          <option>Vignesh)</option>
         </select>
       </div>
       <div><label class="form-label">Planned Date</label><input class="form-input" type="date" id="f_plannedDate"></div>
       <div><label class="form-label">Completed Date</label><input class="form-input" type="date" id="f_completedDate"></div>
-      <div><label class="form-label">Material Requirements</label><input class="form-input" id="f_materialReq" placeholder="Material Requirements"></div>
+      <div><label class="form-label">Material Requirements</label><input class="form-input" id="f_materialReq" placeholder="Parts / Material needed"></div>
       <div><label class="form-label">Status</label>
-        <select class="form-select" id="f_status"><option value="Pending">Pending</option><option value="Complete">Complete</option></select>
+        <select class="form-select" id="f_status"><option value="Pending">Pending</option><option value="Complete">Complete ✓ (requires MOM + MK16)</option></select>
       </div>
     </div>
-    <div style="margin-top:18px"><label class="form-label">Issue Description *</label><textarea class="form-textarea" id="f_issueDescription" placeholder="Describe the issue in detail..."></textarea></div>
-    <div style="margin-top:14px"><label class="form-label">Action Taken</label><textarea class="form-textarea" id="f_actionTaken" placeholder="Describe actions taken so far..." style="min-height:60px"></textarea></div>
+    <div style="margin-top:20px"><label class="form-label">Issue Description *</label><textarea class="form-textarea" id="f_issueDescription" placeholder="Describe the OLTC issue in detail..."></textarea></div>
+    <div style="margin-top:14px"><label class="form-label">Action Taken</label><textarea class="form-textarea" id="f_actionTaken" placeholder="Actions taken / work done..." style="min-height:60px"></textarea></div>
     <div class="form-actions">
-      <button class="btn-primary" onclick="saveComplaint()" id="saveBtn2">Register Complaint</button>
+      <button class="btn-dark" onclick="saveComplaint()" id="saveBtn2" style="padding:12px 28px;font-size:13px;border-radius:12px">Register Complaint</button>
       <button class="btn-cancel" onclick="closeForm()">Cancel</button>
     </div>
   </div>
@@ -371,592 +540,839 @@ tr:not(thead tr){border-bottom:1px solid var(--border)}tr:not(thead tr):hover{ba
   <div id="detailModal" class="modal-overlay" style="display:none" onclick="closeDetail()">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <div><div class="detail-label">Complaint Detail</div><div class="modal-serial" id="detailSerial"></div></div>
-        <span id="detailBadge"></span>
+        <div><div style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:1.5px;text-transform:uppercase">Complaint Detail</div><div class="modal-serial" id="detailSerial"></div></div>
+        <div id="detailBadge"></div>
       </div>
       <div id="detailBody"></div>
       <button class="btn-close-modal" onclick="closeDetail()">Close</button>
     </div>
   </div>
 
-  <div class="footer">
-    <div class="footer-left">
-      <svg viewBox="0 0 100 38" style="width:60px;height:22px">
-        <text x="0" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#BE1E2D" letter-spacing="-3">EM</text>
-        <text x="58" y="32" font-family="'Arial Black',Impact,sans-serif" font-weight="900" font-size="36" fill="#6E6E6E" letter-spacing="-1">R</text>
-      </svg>
-      <span>Tap Changers Pvt. Ltd. — Gujarat Service Division</span>
+  <!-- ══ UPLOAD MODAL ══ -->
+  <div id="uploadModal" class="modal-overlay" style="display:none" onclick="closeUpload()">
+    <div class="upload-modal" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+        <div>
+          <div style="font-size:9px;color:var(--text3);font-weight:700;letter-spacing:1.5px;text-transform:uppercase" id="uploadTypeLabel">Upload Document</div>
+          <div style="font-size:20px;font-weight:900;color:var(--dark);margin-top:3px" id="uploadTitle">Upload MOM</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="uploadFor">for Company</div>
+        </div>
+        <div id="uploadTypeBadge" style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--bg)">📝</div>
+      </div>
+
+      <!-- Drive info note -->
+      <div style="background:var(--green-light);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:11px;color:var(--green);font-weight:600">
+        <span>🔒</span>
+        <span>Saved to <strong>Google Drive → EMR Documents → <span id="uploadFolderLabel">MOM</span></strong> folder automatically</span>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="upload-zone" id="uploadZone"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event)">
+        <span class="upload-zone-icon">📂</span>
+        <div class="upload-zone-text">Click to browse or drag & drop file here</div>
+        <div class="upload-zone-sub">Supports PDF, DOC, DOCX, JPG, PNG · Max 10 MB</div>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect(this.files[0])">
+
+      <!-- File preview -->
+      <div id="uploadPreview" class="upload-preview" style="display:none">
+        <span style="font-size:28px" id="previewIcon">📄</span>
+        <div class="upload-preview-info">
+          <div class="upload-preview-name" id="previewName">filename.pdf</div>
+          <div class="upload-preview-size" id="previewSize">0 KB</div>
+        </div>
+        <button onclick="clearFileSelect()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px;line-height:1">✕</button>
+      </div>
+
+      <!-- Progress -->
+      <div id="uploadProgWrap" style="display:none" class="upload-prog-wrap">
+        <div class="upload-prog-bar-bg">
+          <div class="upload-prog-bar" id="uploadProgBar" style="width:0%"></div>
+        </div>
+        <div class="upload-prog-status" id="uploadStatus">Uploading...</div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button id="uploadBtn" class="btn-dark" onclick="doUpload()" style="flex:1;border-radius:12px;padding:13px;font-size:13px" disabled>Upload to Google Drive</button>
+        <button class="btn-cancel" onclick="closeUpload()" style="padding:13px 20px;border-radius:12px">Cancel</button>
+      </div>
     </div>
-    <div>Dashboard v2.0 — Gmail Integrated</div>
   </div>
-</div>
 
-<!-- Gmail API -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>© 2026 EMR Tap Changers — Gujarat OLTC Service</span>
+    <span style="font-family:'JetBrains Mono',monospace">v3.0 · Dashboard</span>
+  </div>
+
+</div><!-- end main -->
+
 <script>
-let complaints = [];
+// ══ LIVE CLOCK ══
+(function(){
+  function tick(){
+    const now=new Date();
+    const t=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const el=document.getElementById('liveClock');
+    if(el)el.textContent=t;
+  }
+  tick();setInterval(tick,1000);
+})();
 
-// ===== GOOGLE SHEETS CONFIG =====
-const SHEET_ID = '1APzFDrFhKW4SqUmbwNyAyG723Gmg2zNsk95_6RDiRws';
-const API_KEY = 'AIzaSyBecbJU49RN53QO2POXTQKjvHZ3gkPnsEg';
-const SHEET_NAME = 'Service Report';
-const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets';
+// ══ CONFIG ══
+let complaints=[];
+const SHEET_ID='1APzFDrFhKW4SqUmbwNyAyG723Gmg2zNsk95_6RDiRws';
+const API_KEY='AIzaSyBecbJU49RN53QO2POXTQKjvHZ3gkPnsEg';
+const SHEET_NAME='Service Report';
+const SHEETS_API='https://sheets.googleapis.com/v4/spreadsheets';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxxkNk2HdJD1-DbMVOkZ8usbMGF_kp8jh73Y3bwSwGkTk93S4pI2h3yKT16wFBIz7MlYQ/exec';
 
-// ===== GOOGLE APPS SCRIPT WEB APP URL (for writes) =====
-// IMPORTANT: Paste your deployed Apps Script Web App URL below.
-// Steps: script.google.com → New Project → paste code from EMR_AppScript.gs → Deploy → Web App → Anyone → Copy URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxkNk2HdJD1-DbMVOkZ8usbMGF_kp8jh73Y3bwSwGkTk93S4pI2h3yKT16wFBIz7MlYQ/exec';
-
-// ===== LOAD DATA FROM GOOGLE SHEETS =====
-async function loadFromSheets() {
-  try {
-    notify('Loading data from Google Sheets...');
-    const url = `${SHEETS_API}/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:N500?key=${API_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Sheet API error: ' + res.status);
-    const data = await res.json();
-    const rows = data.values || [];
-    if (rows.length < 2) { notify('No data in sheet'); return; }
-
-    complaints = [];
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r[1] && !r[2]) continue;
-      const status = (r[8] || 'Pending').toString().trim().toUpperCase();
+// ══ LOAD FROM SHEETS ══
+async function loadFromSheets(){
+  try{
+    notify('⟳ Loading from Google Sheets...');
+    const url=`${SHEETS_API}/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}!A1:N500?key=${API_KEY}`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('API error: '+res.status);
+    const data=await res.json();
+    const rows=data.values||[];
+    if(rows.length<2){notify('No data found in sheet');return}
+    // Load locally overridden statuses (so sync doesn't revert completed ones)
+    let localStatus={};
+    try{localStatus=JSON.parse(localStorage.getItem('emr_status_override')||'{}')}catch(e){}
+    complaints=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r[1]&&!r[2])continue;
+      const serial='EMR-GJ-2026-'+String(i).padStart(3,'0');
+      const st=(r[8]||'Pending').toString().trim().toUpperCase();
+      const sheetStatus=st.includes('COMPLETE')?'Complete':'Pending';
+      // Use local override if present (handles race condition with sheet sync)
+      const finalStatus=localStatus[serial]||sheetStatus;
       complaints.push({
-        id: i,
-        serialNo: 'EMR-GJ-2026-' + String(i).padStart(3, '0'),
-        companyName: (r[1] || '').toString().trim(),
-        location: (r[2] || '').toString().trim(),
-        customerName: (r[3] || '').toString().trim(),
-        jobSerialNo: (r[4] || '').toString().trim().replace(/\.0$/, ''),
-        issueDescription: (r[5] || '').toString().trim(),
-        actionTaken: (r[6] || '').toString().trim(),
-        status: status.includes('COMPLETE') ? 'Complete' : 'Pending',
-        plannedDate: parseSheetDate((r[9] || '').toString().trim()),
-        completedDate: parseSheetDate((r[10] || '').toString().trim()),
-        engineerAssigned: (r[11] || '').toString().trim(),
-        materialReq: (r[12] || '').toString().trim(),
+        id:i,serialNo:serial,
+        companyName:(r[1]||'').toString().trim(),
+        location:(r[2]||'').toString().trim(),
+        customerName:(r[3]||'').toString().trim(),
+        jobSerialNo:(r[4]||'').toString().trim().replace(/\.0$/,''),
+        issueDescription:(r[5]||'').toString().trim(),
+        actionTaken:(r[6]||'').toString().trim(),
+        status:finalStatus,
+        plannedDate:parseSheetDate((r[9]||'').toString().trim()),
+        completedDate:parseSheetDate((r[10]||'').toString().trim()),
+        engineerAssigned:(r[11]||'').toString().trim(),
+        materialReq:(r[12]||'').toString().trim(),
       });
     }
-    notify('\u2713 Loaded ' + complaints.length + ' complaints from Google Sheets');
+    notify('✓ Loaded '+complaints.length+' complaints');
     renderAll();
-  } catch (err) {
-    console.error('Sheet load error:', err);
-    notify('\u26A0 Failed to load from Sheets: ' + err.message);
+    renderMap(); // refresh map only after full sync
+  }catch(err){
+    console.error(err);notify('⚠ Load failed: '+err.message);
   }
 }
 
-function parseSheetDate(val) {
-  if (!val || val.length > 15) return '';
-  for (const ch of val) { if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z') return ''; }
-  val = val.replace(',', '.');
-  const m = val.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-  if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
-  const m2 = val.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m2) return m2[3] + '-' + m2[2].padStart(2, '0') + '-' + m2[1].padStart(2, '0');
+function parseSheetDate(val){
+  if(!val||val.length>15)return'';
+  for(const ch of val){if((ch>='a'&&ch<='z')||(ch>='A'&&ch<='Z'))return''}
+  val=val.replace(',','.');
+  const m=val.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  const m2=val.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m2)return m2[3]+'-'+m2[2].padStart(2,'0')+'-'+m2[1].padStart(2,'0');
   return val;
 }
 
-// ===== SAVE TO GOOGLE SHEETS (Append new row via Apps Script) =====
-// NOTE: API keys cannot write to Sheets. We use a Google Apps Script Web App as a proxy instead.
-async function appendToSheet(complaint) {
-  if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    notify('\u26A0 Saved locally only — set SCRIPT_URL to enable Google Sheets sync');
+// ══ APPEND TO SHEET ══
+async function appendToSheet(complaint){
+  if(!SCRIPT_URL||SCRIPT_URL.includes('YOUR_'))return;
+  try{
+    const row=[complaints.length,complaint.companyName,complaint.location,complaint.customerName,complaint.jobSerialNo,complaint.issueDescription,complaint.actionTaken,'',complaint.status==='Complete'?'COMPLETED':'PENDING',complaint.plannedDate,complaint.completedDate,complaint.engineerAssigned,complaint.materialReq,''];
+    const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'append',row:row})});
+    const result=await res.json();
+    if(result.success)notify('✓ Saved to Google Sheets!');
+    else notify('⚠ Sheet write failed: '+result.error);
+  }catch(err){console.error(err);notify('⚠ Sheet sync failed')}
+}
+
+async function updateSheetRow(rowIndex,complaint){
+  if(!SCRIPT_URL||SCRIPT_URL.includes('YOUR_'))return;
+  try{
+    const row=[rowIndex,complaint.companyName,complaint.location,complaint.customerName,complaint.jobSerialNo,complaint.issueDescription,complaint.actionTaken,'',complaint.status==='Complete'?'COMPLETED':'PENDING',complaint.plannedDate,complaint.completedDate,complaint.engineerAssigned,complaint.materialReq,''];
+    await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',rowIndex:rowIndex+1,row:row})});
+  }catch(err){console.error(err)}
+}
+
+// ══ STATE ══
+let filterStatus='All',editId=null,currentPage=1;
+const PAGE_SIZE=15;
+
+// ══ CITY DATA ══
+const CITIES=[
+  {name:'Ahmedabad',lat:23.0225,lon:72.5714},{name:'Gandhinagar',lat:23.2156,lon:72.6369},
+  {name:'Vadodara',lat:22.3072,lon:73.1812},{name:'Baroda',lat:22.3100,lon:73.1900},
+  {name:'Surat',lat:21.1702,lon:72.8311},{name:'Rajkot',lat:22.3039,lon:70.8022},
+  {name:'Bhavnagar',lat:21.7645,lon:72.1519},{name:'Jamnagar',lat:22.4707,lon:70.0577},
+  {name:'Junagadh',lat:21.5222,lon:70.4579},{name:'Bhuj',lat:23.2519,lon:69.6669},
+  {name:'Adipur',lat:23.0877,lon:70.0627},{name:'Anand',lat:22.5645,lon:72.9289},
+  {name:'Morbi',lat:22.8173,lon:70.8375},{name:'Mehsana',lat:23.5879,lon:72.3693},
+  {name:'Palanpur',lat:24.1722,lon:72.4339},{name:'Deesa',lat:24.2676,lon:72.1970},
+  {name:'Dhanera',lat:24.0057,lon:72.0253},{name:'Sanand',lat:22.9850,lon:72.3707},
+  {name:'Kadi',lat:23.2996,lon:72.3255},{name:'Himmat Nagar',lat:23.5985,lon:72.9601},
+  {name:'Halol',lat:22.5100,lon:73.4677},{name:'Savli',lat:22.3338,lon:73.3434},
+  {name:'Karjan',lat:22.0469,lon:73.1225},{name:'Makarpura',lat:22.2680,lon:73.1803},
+  {name:'Wagodiya',lat:22.3660,lon:73.2460},{name:'Bharuch',lat:21.7051,lon:72.9959},
+  {name:'Surendra Nagar',lat:22.7283,lon:71.6544},{name:'Vapi',lat:20.3893,lon:72.9130},
+  {name:'Navsari',lat:20.9467,lon:72.9520},{name:'Anjar',lat:23.1148,lon:70.0230},
+  {name:'Moriya Ahmedabad',lat:23.0500,lon:72.6500},{name:'Changodar',lat:22.9200,lon:72.4900},
+  {name:'Nandasan',lat:23.4000,lon:72.6000},{name:'Tharad',lat:24.3961,lon:71.6271},
+  {name:'Por Gujarat',lat:22.5900,lon:73.1100},{name:'Otha Gujarat',lat:22.5000,lon:72.0000},
+  {name:'Karja',lat:21.8500,lon:73.1000},{name:'Ambaji',lat:24.3321,lon:72.8498},
+];
+
+// ══ NOTIFY ══
+function notify(msg){
+  const el=document.getElementById('notification');
+  el.textContent=msg;el.style.display='block';
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.style.display='none'},3200);
+}
+
+// ══ SERIAL ══
+function nextSerial(){return'EMR-GJ-2026-'+String(complaints.length+1).padStart(3,'0')}
+
+// ══ FILTER ══
+function getFiltered(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  return complaints.filter(c=>{
+    const ms=filterStatus==='All'||c.status===filterStatus;
+    const mq=q===''||Object.values(c).some(v=>String(v).toLowerCase().includes(q));
+    return ms&&mq;
+  });
+}
+
+// ══ RENDER STATS — WELCOME BARS + BIG NUMBERS ══
+function renderStats(){
+  const total=complaints.length;
+  const pending=complaints.filter(c=>c.status==='Pending').length;
+  const complete=complaints.filter(c=>c.status==='Complete').length;
+  const engs=new Set(complaints.map(c=>c.engineerAssigned).filter(Boolean)).size;
+  const compRate=total>0?Math.round(complete/total*100):0;
+  const pendRate=total>0?Math.round(pending/total*100):0;
+
+  // Metric progress bars
+  const bars=[
+    {label:'Total Registered',pct:Math.min(total/Math.max(total+5,30)*100,100),color:'#111111',val:total},
+    {label:'Pending',pct:pendRate,color:'#e53935',val:pending},
+    {label:'Completed',pct:compRate,color:'#16a34a',val:complete},
+    {label:'Engineers Active',pct:Math.min(engs/6*100,100),color:'#f5c422',val:engs},
+  ];
+  document.getElementById('metricBars').innerHTML=bars.map(b=>`
+    <div class="metric-pill">
+      <div class="metric-pill-top">
+        <span class="metric-pill-label">${b.label}</span>
+        <span class="metric-pill-pct" style="background:${b.color}18;color:${b.color}">${b.val}</span>
+      </div>
+      <div class="pill-track">
+        <div class="pill-bar" style="width:0%;background:${b.color}" data-w="${b.pct.toFixed(1)}%"></div>
+      </div>
+    </div>`).join('');
+
+  // Big numbers
+  document.getElementById('bigStats').innerHTML=[
+    {val:total,lbl:'Total',icon:'📋'},
+    {val:pending,lbl:'Pending',icon:'⚡'},
+    {val:complete,lbl:'Completed',icon:'✓'},
+    {val:engs,lbl:'Engineers',icon:'👷'},
+  ].map(s=>`
+    <div class="big-stat">
+      <div class="big-stat-icon">${s.icon}</div>
+      <div class="big-stat-val">${s.val}</div>
+      <div class="big-stat-lbl">${s.lbl}</div>
+    </div>`).join('');
+
+  // Completion ring
+  const ring=document.getElementById('ringFill');
+  const circumference=364.4;
+  const offset=circumference*(1-compRate/100);
+  document.getElementById('ringVal').textContent=compRate+'%';
+  document.getElementById('gaugeLabel').textContent=complete+' of '+total+' jobs done';
+  document.getElementById('gaugeTrackRow').innerHTML=[
+    {lbl:'Pending',pct:pendRate,color:'#e53935'},
+    {lbl:'Done',pct:compRate,color:'#16a34a'},
+  ].map(t=>`<div class="mini-track">
+    <div class="mini-track-pct" style="color:${t.color}">${t.pct}%</div>
+    <div class="mini-track-bar"><div class="mini-track-fill" style="width:0%;background:${t.color}" data-w="${t.pct}%"></div></div>
+    <div class="mini-track-lbl">${t.lbl}</div>
+  </div>`).join('');
+
+  // Animate after render
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.pill-bar[data-w],.mini-track-fill[data-w]').forEach(el=>{
+      el.style.width=el.getAttribute('data-w');
+    });
+    if(ring)ring.style.strokeDashoffset=offset;
+  }));
+}
+
+// ══ DOC STATUS — stored in localStorage ══
+function getDocStatus(){
+  try{return JSON.parse(localStorage.getItem('emr_doc_status')||'{}')}catch(e){return{}}
+}
+function saveDocStatus(ds){
+  try{localStorage.setItem('emr_doc_status',JSON.stringify(ds))}catch(e){}
+}
+
+// ══ RENDER DOCUMENT CARD (MOM & MK16) ══
+function renderDocCard(){
+  const pending=complaints.filter(c=>c.status==='Pending');
+  const ds=getDocStatus();
+  let momNeeded=0,mk16Needed=0,doneCount=0;
+  pending.forEach(c=>{
+    const d=ds[c.serialNo]||{};
+    if(!d.mom?.uploaded)momNeeded++;
+    if(!d.mk16?.uploaded)mk16Needed++;
+    if(d.mom?.uploaded)doneCount++;
+    if(d.mk16?.uploaded)doneCount++;
+  });
+  const momEl=document.getElementById('docMomCount');
+  const mk16El=document.getElementById('docMk16Count');
+  const doneEl=document.getElementById('docDoneCount');
+  if(momEl)momEl.textContent=momNeeded;
+  if(mk16El)mk16El.textContent=mk16Needed;
+  if(doneEl)doneEl.textContent=doneCount;
+  const list=document.getElementById('docList');
+  if(!list)return;
+  if(pending.length===0){
+    list.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px">🎉 No pending sites — all documents submitted!</div>';
     return;
   }
-  try {
-    const row = [
-      complaints.length,
-      complaint.companyName,
-      complaint.location,
-      complaint.customerName,
-      complaint.jobSerialNo,
-      complaint.issueDescription,
-      complaint.actionTaken,
-      '',
-      complaint.status === 'Complete' ? 'COMPLETED' : 'PENDING',
-      complaint.plannedDate,
-      complaint.completedDate,
-      complaint.engineerAssigned,
-      complaint.materialReq,
-      ''
-    ];
-    const res = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'append', row: row })
-    });
-    const result = await res.json();
-    if (result.success) {
-      notify('\u2713 Saved to Google Sheets!');
-    } else {
-      console.error('Sheet save error:', result.error);
-      notify('\u26A0 Saved locally but Google Sheets write failed: ' + result.error);
-    }
-  } catch (err) {
-    console.error('Sheet append error:', err);
-    notify('\u26A0 Saved locally — Sheet sync failed');
-  }
-}
-
-// ===== UPDATE ROW IN GOOGLE SHEETS (via Apps Script) =====
-// NOTE: API keys cannot write to Sheets. We use a Google Apps Script Web App as a proxy instead.
-async function updateSheetRow(rowIndex, complaint) {
-  if (!SCRIPT_URL || SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') return;
-  try {
-    const row = [
-      rowIndex,
-      complaint.companyName,
-      complaint.location,
-      complaint.customerName,
-      complaint.jobSerialNo,
-      complaint.issueDescription,
-      complaint.actionTaken,
-      '',
-      complaint.status === 'Complete' ? 'COMPLETED' : 'PENDING',
-      complaint.plannedDate,
-      complaint.completedDate,
-      complaint.engineerAssigned,
-      complaint.materialReq,
-      ''
-    ];
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'update', rowIndex: rowIndex + 1, row: row })
-    });
-  } catch (err) {
-    console.error('Sheet update error:', err);
-  }
-}
-
-let filterStatus="All",editId=null,currentPage=1;
-const PAGE_SIZE=15;
-let scheduleActive=false, scheduleTimer=null;
-let gmailToken=null;
-
-const CITIES=[
-  {name:"Ahmedabad",x:178,y:198},{name:"Vadodara",x:218,y:255},{name:"Surat",x:230,y:330},
-  {name:"Rajkot",x:108,y:238},{name:"Bhavnagar",x:155,y:282},{name:"Gandhinagar",x:185,y:178},
-  {name:"Junagadh",x:96,y:302},{name:"Kutch",x:88,y:98},{name:"Jamnagar",x:72,y:198},
-  {name:"Bharuch",x:228,y:298},{name:"Anand",x:202,y:243},{name:"Mehsana",x:180,y:148},
-  {name:"Porbandar",x:48,y:262},{name:"Valsad",x:248,y:382},{name:"Navsari",x:240,y:356},
-  {name:"Deesa",x:175,y:110},{name:"Halol",x:225,y:238},{name:"Savli",x:212,y:248},
-  {name:"Karjan",x:222,y:268},{name:"Makarpura",x:220,y:258},{name:"Baroda",x:216,y:252},
-  {name:"Palanpur",x:168,y:120},{name:"Morbi",x:95,y:218},{name:"Bhuj",x:70,y:115},
-  {name:"Adipur",x:58,y:130},{name:"Sanand",x:172,y:205},{name:"Kadi",x:177,y:165},
-  {name:"Vapi",x:246,y:388},{name:"Himmat Nagar",x:190,y:145},{name:"Dhanera",x:165,y:112}
-];
-const GUJARAT_MAIN="M 170,22 C 180,18 195,24 210,36 C 220,44 232,52 242,64 C 250,74 255,86 258,100 C 260,110 262,122 264,134 C 266,146 268,160 268,174 C 268,188 266,200 266,214 C 266,228 268,240 268,254 C 268,268 266,280 264,294 C 262,306 258,318 254,330 C 250,342 244,354 238,364 C 232,374 224,382 216,390 C 208,396 198,400 188,398 C 178,396 172,388 168,378 C 164,368 160,356 154,346 C 148,338 140,332 130,328 C 120,324 110,322 100,318 C 92,314 86,308 78,300 C 70,292 62,284 54,276 C 46,268 40,260 36,250 C 32,240 32,230 32,220 C 34,212 38,206 44,200 C 50,194 56,188 56,178 C 56,168 50,158 48,148 C 46,138 48,128 54,120 C 60,114 68,110 72,102 C 74,94 70,84 68,76 C 66,68 68,58 74,50 C 80,44 90,40 100,38 C 112,36 124,30 136,24 C 148,20 160,18 170,22 Z";
-const KUTCH_REGION="M 48,148 C 42,140 34,134 24,130 C 16,128 8,126 4,120 C 2,114 6,106 14,100 C 22,94 34,90 48,86 C 58,84 66,82 72,80 C 76,84 74,92 72,102 C 68,110 60,114 54,120 C 50,128 48,138 48,148 Z";
-
-function notify(msg){const el=document.getElementById('notification');el.textContent=msg;el.style.display='block';setTimeout(()=>{el.style.display='none'},2500)}
-function nextSerial(){return'EMR-GJ-2026-'+String(complaints.length+1).padStart(3,'0')}
-function getFiltered(){const q=document.getElementById('searchInput').value.toLowerCase();return complaints.filter(c=>{const ms=filterStatus==='All'||c.status===filterStatus;const mq=q===''||Object.values(c).some(v=>String(v).toLowerCase().includes(q));return ms&&mq})}
-
-// ===== EMAIL HTML GENERATOR =====
-function generateEmailHTML(){
-  const pending=complaints.filter(c=>c.status==='Pending');
-  const materialItems=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
-  const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const senderName=document.getElementById('senderName')?.value||'Service Team';
-
-  let html=`
-  <div style="font-family:'Segoe UI',Tahoma,sans-serif;max-width:700px;margin:0 auto;background:#fff">
-    <div style="background:linear-gradient(135deg,#BE1E2D,#8B1520);padding:20px 30px;border-radius:12px 12px 0 0">
-      <table width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td style="width:220px;vertical-align:middle">
-          <span style="font-family:'Arial Black',Impact,sans-serif;font-size:36px;color:#ffffff;letter-spacing:-2px;font-weight:900">EM</span><span style="font-family:'Arial Black',Impact,sans-serif;font-size:36px;color:#cccccc;letter-spacing:-1px;font-weight:900">R</span>
-          <div style="color:#ffffff;font-size:10px;font-weight:600;letter-spacing:1.5px;margin-top:2px;opacity:0.9">TAP CHANGERS PVT. LTD.</div>
-        </td>
-        <td style="text-align:right;vertical-align:middle">
-          <div style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.5px">DAILY BRC STATUS REPORT</div>
-          <div style="color:#ffffff;font-size:13px;margin-top:6px;font-weight:600;opacity:0.95">${today}</div>
-        </td>
-      </tr></table>
-    </div>
-    <div style="padding:24px 30px;border:1px solid #e0e0e0;border-top:none">
-      <div style="display:flex;gap:16px;margin-bottom:24px">
-        <div style="flex:1;background:#FFF3F4;border:1px solid #FFCDD2;border-radius:10px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:#BE1E2D">${pending.length}</div>
-          <div style="font-size:11px;color:#BE1E2D;font-weight:700;text-transform:uppercase;letter-spacing:1px">Pending</div>
+  list.innerHTML=pending.map(c=>{
+    const d=ds[c.serialNo]||{};
+    const momDone=!!d.mom?.uploaded;
+    const mk16Done=!!d.mk16?.uploaded;
+    const oltcChecked=!!d.oltcOverhauling;
+    const safe=c.companyName.replace(/'/g,"\\'");
+    return`<div class="doc-item">
+      <div class="doc-item-top">
+        <div>
+          <div class="doc-item-name">${c.companyName}</div>
+          <div class="doc-item-meta">${c.location||'—'} · ${c.engineerAssigned||'Unassigned'} · ${c.serialNo}</div>
         </div>
-        <div style="flex:1;background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:#F57F17">${materialItems.length}</div>
-          <div style="font-size:11px;color:#F57F17;font-weight:700;text-transform:uppercase;letter-spacing:1px">Material Req</div>
+        <div class="doc-status-chips">
+          <span class="doc-chip ${momDone?'doc-chip-ok':'doc-chip-no'}">MOM ${momDone?'✓':'✗'}</span>
+          <span class="doc-chip ${mk16Done?'doc-chip-ok':'doc-chip-mk16-no'}">MK16 ${mk16Done?'✓':'✗'}</span>
+          ${oltcChecked?'<span class="doc-chip doc-chip-ok">OLTC ✓</span>':''}
         </div>
-        <div style="flex:1;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:#2E7D32">${complaints.filter(c=>c.status==='Complete').length}</div>
-          <div style="font-size:11px;color:#2E7D32;font-weight:700;text-transform:uppercase;letter-spacing:1px">Completed</div>
-        </div>
-      </div>`;
-
-  // PENDING TABLE
-  if(pending.length>0){
-    html+=`<div style="margin-bottom:24px">
-      <div style="font-size:14px;font-weight:800;color:#BE1E2D;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #BE1E2D">&#9888; Pending Complaints (${pending.length})</div>
-      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">
-        <tr style="background:#BE1E2D">
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px;letter-spacing:0.5px">SR NO</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">COMPANY</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">LOCATION</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">ISSUE</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">ENGINEER</th>
-        </tr>`;
-    pending.forEach((c,i)=>{
-      const bg=i%2===0?'#fff':'#fafafa';
-      html+=`<tr style="background:${bg}">
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#BE1E2D;font-weight:700;font-family:monospace;font-size:11px">${c.serialNo}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;font-weight:600">${c.companyName}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#666">${c.location||'—'}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#333">${c.issueDescription}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#666">${c.engineerAssigned||'—'}</td>
-      </tr>`;
-    });
-    html+=`</table></div>`;
-  }
-
-  // MATERIAL TABLE
-  if(materialItems.length>0){
-    html+=`<div style="margin-bottom:24px">
-      <div style="font-size:14px;font-weight:800;color:#F57F17;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #F57F17">&#128230; Material Requirements (${materialItems.length})</div>
-      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px">
-        <tr style="background:#F57F17">
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">SR NO</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">COMPANY</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">MATERIAL REQUIRED</th>
-          <th style="padding:10px 8px;color:#fff;text-align:left;font-size:10px">STATUS</th>
-        </tr>`;
-    materialItems.forEach((c,i)=>{
-      const bg=i%2===0?'#fff':'#FFFDE7';
-      const statusColor=c.status==='Pending'?'#BE1E2D':'#2E7D32';
-      html+=`<tr style="background:${bg}">
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#BE1E2D;font-weight:700;font-family:monospace;font-size:11px">${c.serialNo}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;font-weight:600">${c.companyName}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee;color:#333;font-weight:500">${c.materialReq}</td>
-        <td style="padding:8px;border-bottom:1px solid #eee"><span style="padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;background:${c.status==='Pending'?'#FFF3F4':'#E8F5E9'};color:${statusColor}">${c.status}</span></td>
-      </tr>`;
-    });
-    html+=`</table></div>`;
-  }
-
-  html+=`
-      <div style="margin-top:20px;padding-top:16px;border-top:2px solid #BE1E2D;text-align:center">
-        <div style="font-size:12px;color:#BE1E2D;font-weight:700;letter-spacing:1px">EMR Tap Changers Private Limited</div>
-        <div style="font-size:10px;color:#999;margin-top:4px">Formerly EASUN MR — Gujarat Service Division</div>
       </div>
-    </div>
-  </div>`;
-  return html;
-}
-
-function generateCSVBlob(){
-  const items=[...complaints.filter(c=>c.status==='Pending'),...complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='')];
-  const unique=[...new Map(items.map(c=>[c.id,c])).values()];
-  const h=["Serial No","Company","Location","Customer","Issue","Action","Status","Planned Date","Engineer","Material Req"];
-  const rows=unique.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.engineerAssigned,c.materialReq]);
-  const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  return new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-}
-
-// ===== EMAIL PANEL =====
-function openEmailPanel(){
-  document.getElementById('emailPanel').style.display='block';
-  renderEmailPreview();
-  setTimeout(()=>document.getElementById('emailPanel').scrollIntoView({behavior:'smooth'}),100);
-}
-function closeEmailPanel(){document.getElementById('emailPanel').style.display='none'}
-
-function renderEmailPreview(){
-  const pending=complaints.filter(c=>c.status==='Pending').length;
-  const matl=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='').length;
-  document.getElementById('previewCount').textContent=pending+' pending, '+matl+' material items';
-  document.getElementById('emailPreview').innerHTML=generateEmailHTML();
-}
-
-function toggleSchedule(){
-  scheduleActive=!scheduleActive;
-  const track=document.getElementById('scheduleToggle');
-  const statusEl=document.getElementById('scheduleStatus');
-  if(scheduleActive){
-    track.classList.add('on');
-    statusEl.style.display='flex';
-    startSchedule();
-  }else{
-    track.classList.remove('on');
-    statusEl.style.display='none';
-    if(scheduleTimer){clearInterval(scheduleTimer);scheduleTimer=null}
-    if(window.scheduleWorker){window.scheduleWorker.terminate();window.scheduleWorker=null}
-    document.getElementById('scheduleLog').style.display='none';
-    document.getElementById('scheduleLog').innerHTML='';
-    notify('Daily email schedule disabled');
-  }
-}
-
-function scheduleLog(msg){
-  const logEl=document.getElementById('scheduleLog');
-  if(!logEl)return;
-  logEl.style.display='block';
-  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  logEl.innerHTML='['+time+'] '+msg+'<br>'+logEl.innerHTML;
-  if(logEl.children.length>10)logEl.innerHTML=logEl.innerHTML.split('<br>').slice(0,10).join('<br>');
-}
-
-function startSchedule(){
-  const timeVal=document.getElementById('scheduleTime').value;
-  const[h,m]=timeVal.split(':');
-  const ampm=parseInt(h)>=12?'PM':'AM';
-  const h12=parseInt(h)%12||12;
-  const targetTime=h12+':'+m+' '+ampm;
-  document.getElementById('nextSendTime').textContent=targetTime;
-  
-  if(scheduleTimer){clearInterval(scheduleTimer);scheduleTimer=null}
-  if(window.scheduleWorker){window.scheduleWorker.terminate();window.scheduleWorker=null}
-
-  // Pre-authenticate Gmail
-  scheduleLog('Connecting to Gmail...');
-  getGmailToken().then(()=>{
-    scheduleLog('\u2713 Gmail authenticated! Token ready.');
-    notify('\u2713 Gmail connected! Schedule set for '+targetTime);
-  }).catch(()=>{
-    scheduleLog('\u26A0 Gmail auth failed. Click "Send Now" first to sign in.');
-    notify('\u26A0 Please click "Send Now via Gmail" once to sign in first');
-  });
-
-  // METHOD 1: Web Worker (works in background tabs!)
-  try{
-    const workerCode=`
-      let targetH='${h}';
-      let targetM='${m}';
-      let lastSent='';
-      setInterval(()=>{
-        const now=new Date();
-        const nowH=String(now.getHours()).padStart(2,'0');
-        const nowM=String(now.getMinutes()).padStart(2,'0');
-        const todayStr=now.toDateString();
-        postMessage({type:'tick',time:nowH+':'+nowM+':'+String(now.getSeconds()).padStart(2,'0')});
-        if(nowH===targetH&&nowM===targetM&&lastSent!==todayStr){
-          lastSent=todayStr;
-          postMessage({type:'trigger',time:nowH+':'+nowM});
+      <div class="doc-btns">
+        ${momDone
+          ?`<div class="doc-btn-full doc-btn-full-done" style="cursor:default">
+              <span style="font-size:18px">✅</span>
+              <div style="flex:1;min-width:0"><div class="doc-btn-full-label">MOM Uploaded</div><div class="doc-btn-full-sub">${d.mom.fileName||'Minutes of Meeting'} · ${d.mom.date||''}</div></div>
+              <a href="${d.mom.url}" target="_blank" style="font-size:10px;font-weight:700;color:var(--green);text-decoration:none;margin-right:6px">↗ View</a>
+              <button onclick="deleteDoc('${c.serialNo}','MOM')" title="Remove MOM" style="background:var(--red-light);border:none;color:var(--red);border-radius:6px;width:22px;height:22px;font-size:12px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+            </div>`
+          :`<button class="doc-btn-full doc-btn-full-mom" onclick="openUpload('${c.serialNo}','${safe}','MOM')">
+              <span style="font-size:18px">📝</span>
+              <div><div class="doc-btn-full-label">Upload MOM</div><div class="doc-btn-full-sub">Minutes of Meeting document</div></div>
+              <span class="doc-btn-full-arrow">→</span>
+            </button>`
         }
-      },2000);
-    `;
-    const blob=new Blob([workerCode],{type:'application/javascript'});
-    window.scheduleWorker=new Worker(URL.createObjectURL(blob));
-    window.scheduleWorker.onmessage=function(e){
-      if(e.data.type==='tick'){
-        const clockEl=document.getElementById('liveClock');
-        if(clockEl)clockEl.textContent='\u23F0 '+e.data.time;
-      }
-      if(e.data.type==='trigger'){
-        scheduleLog('\u{1F4E7} TRIGGER! Sending email at '+e.data.time);
-        notify('\u{1F4E7} Auto-sending daily report...');
-        sendEmailNow();
-      }
-    };
-    scheduleLog('Web Worker started. Monitoring for '+h+':'+m+' every 2s');
-    scheduleLog('Schedule target: '+targetTime+' \u2014 keep this page open');
-  }catch(err){
-    // METHOD 2: Fallback to setInterval if Worker fails
-    scheduleLog('Worker failed, using fallback timer');
-    let lastSentDate='';
-    scheduleTimer=setInterval(()=>{
-      const now=new Date();
-      const nowH=String(now.getHours()).padStart(2,'0');
-      const nowM=String(now.getMinutes()).padStart(2,'0');
-      const todayStr=now.toDateString();
-      const clockEl=document.getElementById('liveClock');
-      if(clockEl)clockEl.textContent='\u23F0 '+nowH+':'+nowM+':'+String(now.getSeconds()).padStart(2,'0');
-      if(nowH===h&&nowM===m&&lastSentDate!==todayStr){
-        lastSentDate=todayStr;
-        scheduleLog('\u{1F4E7} TRIGGER! Sending email at '+nowH+':'+nowM);
-        sendEmailNow();
-      }
-    },2000);
-  }
-
-  document.getElementById('scheduleStatus').style.display='flex';
-}
-
-// ===== GMAIL API =====
-function getGmailToken(){
-  return new Promise((resolve,reject)=>{
-    if(gmailToken){resolve(gmailToken);return}
-    // Use Google Identity Services for OAuth2
-    const client=google.accounts.oauth2.initTokenClient({
-      client_id:'644015165354-tu01onsj9vn7cbcan7cmgf6kb769f4nm.apps.googleusercontent.com',
-      scope:'https://www.googleapis.com/auth/gmail.send',
-      callback:(response)=>{
-        if(response.error){reject(response);return}
-        gmailToken=response.access_token;
-        resolve(gmailToken);
-      }
-    });
-    client.requestAccessToken();
-  });
-}
-
-async function sendEmailNow(){
-  const managerEmail=document.getElementById('managerEmail').value.trim();
-  if(!managerEmail){notify('⚠ Please enter manager email');return}
-  const ccEmail=document.getElementById('ccEmail').value.trim();
-  const senderName=document.getElementById('senderName').value.trim()||'Service Team';
-  const btn=document.getElementById('sendBtn');
-  btn.innerHTML='<span class="spinner"></span> Connecting Gmail...';
-  btn.disabled=true;
-
-  try{
-    const token=await getGmailToken();
-    btn.innerHTML='<span class="spinner"></span> Sending...';
-    const subject='EMR Gujarat — Daily Pending Report ('+new Date().toLocaleDateString('en-IN')+')';
-    const htmlBody=generateEmailHTML();
-
-    // Build MIME with CSV attachment
-    const csvBlob=generateCSVBlob();
-    const csvText=await csvBlob.text();
-    const csvBase64=btoa(unescape(encodeURIComponent(csvText)));
-    const boundary='emr_boundary_'+Date.now();
-
-    let mime='Content-Type: multipart/mixed; boundary="'+boundary+'"\r\n';
-    mime+='MIME-Version: 1.0\r\n';
-    mime+='To: '+managerEmail+'\r\n';
-    if(ccEmail) mime+='Cc: '+ccEmail+'\r\n';
-    mime+='Subject: '+subject+'\r\n\r\n';
-    mime+='--'+boundary+'\r\n';
-    mime+='Content-Type: text/html; charset="UTF-8"\r\n\r\n';
-    mime+=htmlBody+'\r\n\r\n';
-    mime+='--'+boundary+'\r\n';
-    mime+='Content-Type: text/csv; name="EMR_Pending_Report_'+new Date().toISOString().slice(0,10)+'.csv"\r\n';
-    mime+='Content-Disposition: attachment; filename="EMR_Pending_Report_'+new Date().toISOString().slice(0,10)+'.csv"\r\n';
-    mime+='Content-Transfer-Encoding: base64\r\n\r\n';
-    mime+=csvBase64+'\r\n';
-    mime+='--'+boundary+'--';
-
-    const raw=btoa(unescape(encodeURIComponent(mime))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-
-    const res=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({raw:raw})
-    });
-
-    if(res.ok){
-      notify('✓ Email sent to '+managerEmail+' with CSV attachment!');
-    }else{
-      const err=await res.json();
-      throw new Error(err.error?.message||'Failed to send');
-    }
-  }catch(e){
-    if(e.type==='popup_closed'||e.error==='popup_closed_by_user'){
-      notify('Gmail sign-in was cancelled');
-    }else if(String(e).includes('popup_failed')){
-      // Fallback: open mailto
-      notify('⚠ Gmail API not configured — opening email client instead');
-      fallbackMailto();
-    }else{
-      notify('⚠ '+e.message);
-      console.error(e);
-    }
-  }finally{
-    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#fff"/></svg> Send Now via Gmail';
-    btn.disabled=false;
-  }
-}
-
-function fallbackMailto(){
-  const managerEmail=document.getElementById('managerEmail').value.trim()||'';
-  const ccEmail=document.getElementById('ccEmail').value.trim();
-  const pending=complaints.filter(c=>c.status==='Pending');
-  const matl=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
-  const today=new Date().toLocaleDateString('en-IN');
-  let body='EMR Tap Changers - Gujarat Daily Report ('+today+')\n\n';
-  body+='PENDING COMPLAINTS: '+pending.length+'\n';
-  body+='========================\n';
-  pending.forEach(c=>{body+=c.serialNo+' | '+c.companyName+' | '+c.location+' | '+c.issueDescription+' | '+c.engineerAssigned+'\n'});
-  body+='\nMATERIAL REQUIREMENTS: '+matl.length+'\n';
-  body+='========================\n';
-  matl.forEach(c=>{body+=c.serialNo+' | '+c.companyName+' | '+c.materialReq+'\n'});
-  const subject='EMR Gujarat — Daily Pending Report ('+today+')';
-  let url='mailto:'+managerEmail+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-  if(ccEmail) url+='&cc='+encodeURIComponent(ccEmail);
-  window.open(url);
-}
-
-function copyEmailHTML(){
-  const html=generateEmailHTML();
-  navigator.clipboard.writeText(html).then(()=>notify('✓ HTML copied to clipboard'));
-}
-
-// ===== STANDARD DASHBOARD FUNCTIONS =====
-function renderStats(){
-  const total=complaints.length,pending=complaints.filter(c=>c.status==='Pending').length,complete=complaints.filter(c=>c.status==='Complete').length;
-  document.getElementById('statsRow').innerHTML=[
-    {label:'Total',value:total,color:'#5b9bd5',icon:'\u{1F4CB}'},
-    {label:'Pending',value:pending,color:'#BE1E2D',icon:'\u23F3'},
-    {label:'Complete',value:complete,color:'#4ade80',icon:'\u2713'}
-  ].map(s=>`<div class="stat-card" style="background:linear-gradient(135deg,${s.color}12,${s.color}06);border:1.5px solid ${s.color}28"><div class="stat-icon" style="background:${s.color}18">${s.icon}</div><div><div class="stat-value" style="color:${s.color}">${s.value}</div><div class="stat-label">${s.label}</div></div></div>`).join('');
-}
-
-function renderWorkload(){
-  const eng={};
-  complaints.forEach(c=>{const n=c.engineerAssigned||'Unassigned';if(!eng[n])eng[n]={p:0,c:0};c.status==='Pending'?eng[n].p++:eng[n].c++});
-  document.getElementById('workloadContent').innerHTML=Object.entries(eng).sort((a,b)=>(b[1].p+b[1].c)-(a[1].p+a[1].c)).map(([name,d])=>{
-    const t=d.p+d.c;const ini=name.split(' ').filter(w=>w).map(w=>w[0]).join('').substring(0,2);
-    return`<div class="eng-row"><div class="eng-avatar">${ini.toUpperCase()}</div><div class="eng-info"><div class="eng-name">${name} <span style="font-size:11px;color:var(--text-muted)">(${t})</span></div><div class="eng-bar"><div class="eng-bar-done" style="width:${(d.c/t)*100}%"></div><div class="eng-bar-open" style="width:${(d.p/t)*100}%"></div></div></div><div class="eng-stats"><span class="done">${d.c} done</span> \u00B7 <span class="open">${d.p} open</span></div></div>`;
+        ${mk16Done
+          ?`<div class="doc-btn-full doc-btn-full-done" style="cursor:default">
+              <span style="font-size:18px">✅</span>
+              <div style="flex:1;min-width:0"><div class="doc-btn-full-label">MK16 Uploaded</div><div class="doc-btn-full-sub">${d.mk16.fileName||'Service completion form'} · ${d.mk16.date||''}</div></div>
+              <a href="${d.mk16.url}" target="_blank" style="font-size:10px;font-weight:700;color:var(--green);text-decoration:none;margin-right:6px">↗ View</a>
+              <button onclick="deleteDoc('${c.serialNo}','MK16')" title="Remove MK16" style="background:var(--red-light);border:none;color:var(--red);border-radius:6px;width:22px;height:22px;font-size:12px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+            </div>`
+          :`<button class="doc-btn-full doc-btn-full-mk16" onclick="openUpload('${c.serialNo}','${safe}','MK16')">
+              <span style="font-size:18px">📋</span>
+              <div><div class="doc-btn-full-label">Upload MK16</div><div class="doc-btn-full-sub">Service completion certificate</div></div>
+              <span class="doc-btn-full-arrow">→</span>
+            </button>`
+        }
+        <div class="oltc-check-row ${oltcChecked?'checked':''}" onclick="toggleOltcOverhauling('${c.serialNo}')">
+          <div class="oltc-check-box">${oltcChecked?'✓':''}</div>
+          <div style="flex:1">
+            <div class="oltc-check-label">OLTC Overhauling</div>
+            <div class="oltc-check-sub">${oltcChecked?'Confirmed — OLTC overhauling completed':'Tick if OLTC overhauling is done (replaces MK16 requirement)'}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-function renderMap(){
-  const cc={};complaints.forEach(c=>{if(!c.location)return;if(!cc[c.location])cc[c.location]={pending:0,complete:0};c.status==='Pending'?cc[c.location].pending++:cc[c.location].complete++});
-  const gridH=[60,120,180,240,300,360].map(y=>'<line x1="-10" y1="'+y+'" x2="290" y2="'+y+'" stroke="#BE1E2D" stroke-width="0.15" opacity="0.18" stroke-dasharray="4 8"/>').join('');
-  const gridV=[50,100,150,200,250].map(x=>'<line x1="'+x+'" y1="0" x2="'+x+'" y2="420" stroke="#BE1E2D" stroke-width="0.15" opacity="0.18" stroke-dasharray="4 8"/>').join('');
-  const cities=CITIES.map(city=>{const data=cc[city.name];const hp=data&&data.pending>0;const hc=data&&data.complete>0;const t=data?(data.pending+data.complete):0;const r=data?Math.min(4+t,8):2;const fill=hp?'#BE1E2D':hc?'#4ade80':'#B0B0B055';const anim=hp?'<animate attributeName="r" values="'+r+';'+(r+2)+';'+r+'" dur="2s" repeatCount="indefinite"/>':'';const halo=data?'<circle cx="'+city.x+'" cy="'+city.y+'" r="'+(r+6)+'" fill="'+(hp?'#BE1E2D10':'#4ade8010')+'" stroke="none"/>':'';const lbl='<text x="'+city.x+'" y="'+(city.y-r-4)+'" text-anchor="middle" fill="'+(data?'#f0f0f2':'#5a5a66')+'" font-size="'+(data?'7.5':'6.5')+'" font-family="DM Sans,sans-serif" font-weight="'+(data?'700':'400')+'">'+city.name+'</text>';const sts=data?'<text x="'+city.x+'" y="'+(city.y+r+8)+'" text-anchor="middle" fill="#a0a0a8" font-size="6" font-family="JetBrains Mono,monospace">'+(data.pending>0?'P:'+data.pending:'')+(data.complete>0?' C:'+data.complete:'')+'</text>':'';return'<g>'+halo+'<circle cx="'+city.x+'" cy="'+city.y+'" r="'+r+'" fill="'+fill+'" stroke="#fff" stroke-width="0.6"'+(data?' filter="url(#glow)"':'')+'>'+anim+'</circle>'+lbl+sts+'</g>'}).join('');
-  document.getElementById('mapContainer').innerHTML=`<svg viewBox="-10 0 300 420" style="width:100%;height:auto;filter:drop-shadow(0 2px 12px rgba(190,30,45,0.15))"><defs><linearGradient id="mapGrad" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#2a2a30"/><stop offset="100%" stop-color="#1e1e24"/></linearGradient><linearGradient id="mapStroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#BE1E2D"/><stop offset="100%" stop-color="#e8555a"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="mapShadow"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#BE1E2D" flood-opacity="0.18"/></filter></defs><path d="${GUJARAT_MAIN}" fill="url(#mapGrad)" stroke="url(#mapStroke)" stroke-width="1.8" filter="url(#mapShadow)" opacity="0.92"/><path d="${KUTCH_REGION}" fill="url(#mapGrad)" stroke="url(#mapStroke)" stroke-width="1.5" opacity="0.82"/>${gridH}${gridV}${cities}</svg>`;
+// ══ UPLOAD MODAL STATE ══
+let _uploadSerial='',_uploadCompany='',_uploadType='',_selectedFile=null;
+
+function openUpload(serial,company,docType){
+  _uploadSerial=serial;_uploadCompany=company;_uploadType=docType;_selectedFile=null;
+  document.getElementById('uploadTypeLabel').textContent=docType+' Document';
+  document.getElementById('uploadTitle').textContent='Upload '+docType;
+  document.getElementById('uploadFor').textContent='for '+company;
+  document.getElementById('uploadFolderLabel').textContent=docType;
+  document.getElementById('uploadTypeBadge').textContent=docType==='MOM'?'📝':'📋';
+  document.getElementById('uploadPreview').style.display='none';
+  document.getElementById('uploadProgWrap').style.display='none';
+  document.getElementById('uploadBtn').disabled=true;
+  document.getElementById('uploadBtn').textContent='Upload to Google Drive';
+  document.getElementById('fileInput').value='';
+  document.getElementById('uploadModal').style.display='flex';
+}
+function closeUpload(){document.getElementById('uploadModal').style.display='none';_selectedFile=null;}
+
+function deleteDoc(serial,type){
+  if(!confirm('Remove '+type+' document for this site? This only removes it from this dashboard — the file stays in Google Drive.'))return;
+  const ds=getDocStatus();
+  if(ds[serial]){
+    if(type==='MOM')delete ds[serial].mom;
+    else delete ds[serial].mk16;
+    if(!ds[serial].mom&&!ds[serial].mk16&&!ds[serial].oltcOverhauling)delete ds[serial];
+  }
+  saveDocStatus(ds);
+  notify('🗑 '+type+' removed from tracker');
+  renderDocCard();
 }
 
+function toggleOltcOverhauling(serial){
+  const ds=getDocStatus();
+  if(!ds[serial])ds[serial]={};
+  const current=!!ds[serial].oltcOverhauling;
+  if(current){
+    delete ds[serial].oltcOverhauling;
+    notify('OLTC Overhauling unchecked for this site');
+  }else{
+    ds[serial].oltcOverhauling=true;
+    notify('✓ OLTC Overhauling marked as completed');
+  }
+  saveDocStatus(ds);
+  renderDocCard();
+}
+
+function markCompleteFromDoc(serial){
+  const c=complaints.find(x=>x.serialNo===serial);
+  if(!c){notify('⚠ Complaint not found');return;}
+  if(!confirm('Mark "'+c.companyName+'" as Completed?'))return;
+  const today=new Date().toISOString().slice(0,10);
+  const idx=complaints.findIndex(x=>x.serialNo===serial);
+  complaints=complaints.map(x=>x.serialNo===serial?{...x,status:'Complete',completedDate:x.completedDate||today}:x);
+  if(idx>=0)updateSheetRow(idx+1,complaints[idx]);
+  notify('✅ '+c.companyName+' marked as Completed!');
+  renderAll();
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  if(e.dataTransfer.files[0])handleFileSelect(e.dataTransfer.files[0]);
+}
+function handleFileSelect(file){
+  if(!file)return;
+  if(file.size>10*1024*1024){notify('⚠ File too large. Maximum 10 MB');return;}
+  _selectedFile=file;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const icons={pdf:'📕',doc:'📘',docx:'📘',jpg:'🖼️',jpeg:'🖼️',png:'🖼️'};
+  document.getElementById('previewIcon').textContent=icons[ext]||'📄';
+  document.getElementById('previewName').textContent=file.name;
+  document.getElementById('previewSize').textContent=(file.size/1024).toFixed(1)+' KB';
+  document.getElementById('uploadPreview').style.display='flex';
+  document.getElementById('uploadBtn').disabled=false;
+}
+function clearFileSelect(){
+  _selectedFile=null;
+  document.getElementById('fileInput').value='';
+  document.getElementById('uploadPreview').style.display='none';
+  document.getElementById('uploadBtn').disabled=true;
+}
+
+async function doUpload(){
+  if(!_selectedFile)return;
+  const btn=document.getElementById('uploadBtn');
+  btn.disabled=true;btn.textContent='Uploading...';
+  document.getElementById('uploadProgWrap').style.display='block';
+  document.getElementById('uploadProgBar').style.width='15%';
+  document.getElementById('uploadStatus').textContent='Reading file...';
+  document.getElementById('uploadProgBar').style.background='linear-gradient(90deg,#f5c422,#22c55e)';
+  try{
+    // Read as base64
+    const base64=await new Promise((res,rej)=>{
+      const reader=new FileReader();
+      reader.onload=e=>res(e.target.result.split(',')[1]);
+      reader.onerror=rej;
+      reader.readAsDataURL(_selectedFile);
+    });
+    document.getElementById('uploadProgBar').style.width='40%';
+    document.getElementById('uploadStatus').textContent='Connecting to Google Drive...';
+    const safeCompany=_uploadCompany.replace(/[^a-zA-Z0-9\s]/g,'').replace(/\s+/g,'_');
+    const dateStr=new Date().toISOString().slice(0,10);
+    const ext=_selectedFile.name.split('.').pop();
+    const fileName=`${_uploadType}_${safeCompany}_${dateStr}.${ext}`;
+    const payload={
+      action:'uploadDoc',
+      folderName:_uploadType,
+      fileName:fileName,
+      fileData:base64,
+      mimeType:_selectedFile.type||'application/octet-stream',
+      serialNo:_uploadSerial,
+      company:_uploadCompany
+    };
+    document.getElementById('uploadProgBar').style.width='65%';
+    document.getElementById('uploadStatus').textContent='Uploading to Google Drive...';
+    const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const result=await res.json();
+    document.getElementById('uploadProgBar').style.width='100%';
+    if(result.success){
+      document.getElementById('uploadStatus').textContent='✓ Saved to Google Drive!';
+      const ds=getDocStatus();
+      if(!ds[_uploadSerial])ds[_uploadSerial]={};
+      ds[_uploadSerial][_uploadType.toLowerCase()]={
+        uploaded:true,
+        fileName:result.fileName||fileName,
+        url:result.url,
+        fileId:result.fileId,
+        date:dateStr
+      };
+      saveDocStatus(ds);
+      notify('✓ '+_uploadType+' uploaded to Google Drive for '+_uploadCompany);
+      setTimeout(()=>{closeUpload();renderDocCard();},1400);
+    }else{
+      throw new Error(result.error||'Upload failed');
+    }
+  }catch(err){
+    console.error(err);
+    document.getElementById('uploadProgBar').style.background='#e53935';
+    document.getElementById('uploadStatus').textContent='⚠ '+err.message;
+    btn.disabled=false;btn.textContent='Try Again';
+    notify('⚠ Upload failed: '+err.message);
+  }
+}
+
+// ══ RENDER PENDING QUEUE ══
+function renderWorkload(){
+  const pending=complaints.filter(c=>c.status==='Pending');
+  const badge=document.getElementById('pendingCountBadge');
+  if(badge)badge.textContent=pending.length;
+  const list=document.getElementById('pendingSitesList');
+  if(!list)return;
+  if(pending.length===0){
+    list.innerHTML=`<div class="pending-empty-msg">🎉 All sites complete!</div>`;return;
+  }
+  const sorted=[...pending].sort((a,b)=>{
+    if(!a.plannedDate&&!b.plannedDate)return 0;
+    if(!a.plannedDate)return-1;if(!b.plannedDate)return 1;
+    return new Date(a.plannedDate)-new Date(b.plannedDate);
+  });
+  const today=new Date();today.setHours(0,0,0,0);
+  list.innerHTML=sorted.map(c=>{
+    let daysCls='',daysText='';
+    if(c.plannedDate){
+      const pd=new Date(c.plannedDate);pd.setHours(0,0,0,0);
+      const diff=Math.round((today-pd)/(1000*60*60*24));
+      if(diff>0){daysCls='background:#fff0ef;color:#e53935';daysText=`⚠ ${diff}d over`}
+      else if(diff===0){daysCls='background:#fffbeb;color:#d97706';daysText='Today'}
+      else{daysCls='background:#f0fdf4;color:#16a34a';daysText=`In ${-diff}d`}
+    }else{daysCls='background:#fffbeb;color:#d97706';daysText='No date'}
+    const dotColor=daysText.includes('over')?'#e53935':daysText==='Today'?'#d97706':'#16a34a';
+    const issue=c.issueDescription?(c.issueDescription.length>45?c.issueDescription.substring(0,45)+'…':c.issueDescription):'—';
+    return`<div class="pending-item" onclick="viewDetail(${c.id})">
+      <div class="pi-dot" style="background:${dotColor}"></div>
+      <div class="pi-body">
+        <div class="pi-company">${c.companyName}</div>
+        <div class="pi-issue">${c.location||'—'} · ${issue}</div>
+      </div>
+      <div class="pi-right">
+        <div class="pi-days" style="${daysCls}">${daysText}</div>
+        <div class="pi-eng">${(c.engineerAssigned||'—').split(' ')[0]}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ GUJARAT MAP (D3) ══
+let _gujaratGeo=null;
+async function loadD3(){
+  if(window.d3)return;
+  await new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
+    s.onload=res;s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+async function fetchGujaratGeo(){
+  if(_gujaratGeo)return _gujaratGeo;
+  try{
+    const r=await fetch('https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson');
+    if(!r.ok)return null;
+    const data=await r.json();
+    const feat=data.features.find(f=>{
+      const p=f.properties||{};
+      return (p.NAME_1||p.ST_NM||p.name||p.NAME||'').toLowerCase().includes('gujarat');
+    });
+    if(feat){_gujaratGeo={type:'FeatureCollection',features:[feat]};return _gujaratGeo}
+  }catch(e){console.warn('GeoJSON fetch failed',e)}
+  return null;
+}
+async function renderMap(){
+  const container=document.getElementById('mapContainer');
+  container.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:340px;color:rgba(255,255,255,0.3);font-size:11px">Loading map...</div>';
+  try{
+    await loadD3();
+    const geoData=await fetchGujaratGeo();
+    if(!geoData)throw new Error('GeoJSON unavailable');
+    container.innerHTML='';
+    const W=container.clientWidth||240,H=400;
+    const svg=d3.select(container).append('svg').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%').attr('height','auto');
+    const defs=svg.append('defs');
+    defs.append('linearGradient').attr('id','mgfill2').attr('x1','0').attr('y1','0').attr('x2','0.3').attr('y2','1')
+      .html('<stop offset="0%" stop-color="#1e2d4a"/><stop offset="100%" stop-color="#0d1520"/>');
+    const proj=d3.geoMercator().fitExtent([[10,10],[W-10,H-10]],geoData);
+    const path=d3.geoPath().projection(proj);
+    svg.append('g').selectAll('path').data(geoData.features).enter().append('path')
+      .attr('d',path)
+      .attr('fill','url(#mgfill2)')
+      .attr('stroke','rgba(245,196,34,0.4)')
+      .attr('stroke-width','1');
+
+    // Main cities — static dots + names only
+    const MAIN_CITIES=[
+      {name:'Ahmedabad',lon:72.5714,lat:23.0225},
+      {name:'Surat',lon:72.8311,lat:21.1702},
+      {name:'Vadodara',lon:73.1812,lat:22.3072},
+      {name:'Rajkot',lon:70.8022,lat:22.3039},
+      {name:'Bhavnagar',lon:72.1519,lat:21.7645},
+      {name:'Jamnagar',lon:70.0577,lat:22.4707},
+      {name:'Gandhinagar',lon:72.6369,lat:23.2156},
+      {name:'Anand',lon:72.9342,lat:22.5645},
+      {name:'Morbi',lon:70.8370,lat:22.8173},
+      {name:'Bhuj',lon:69.6669,lat:23.2419},
+    ];
+    const cityG=svg.append('g');
+    MAIN_CITIES.forEach(city=>{
+      const coords=proj([city.lon,city.lat]);
+      if(!coords)return;
+      const [cx,cy]=coords;
+      const g=cityG.append('g').attr('transform',`translate(${cx},${cy})`);
+      g.append('circle').attr('r',2.5).attr('fill','rgba(245,196,34,0.9)');
+      g.append('text').attr('x',5).attr('y',3.5)
+        .attr('fill','rgba(255,255,255,0.75)')
+        .attr('font-size','5.5')
+        .attr('font-family','Inter,sans-serif')
+        .attr('font-weight','600')
+        .text(city.name);
+    });
+  }catch(err){
+    console.error(err);
+    container.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:340px;color:rgba(255,255,255,0.3);font-size:11px;text-align:center;padding:16px">Map requires internet.<br>Click Sync to reload.</div>';
+  }
+}
+
+// ══ FILTERS ══
 function renderFilters(){
   const p=complaints.filter(c=>c.status==='Pending').length,co=complaints.filter(c=>c.status==='Complete').length;
-  document.getElementById('filterBtns').innerHTML=['All','Pending','Complete'].map(s=>{const l=s==='All'?'All ('+complaints.length+')':s==='Pending'?'Pending ('+p+')':'Complete ('+co+')';return'<button class="filter-btn '+(filterStatus===s?'active':'')+'" onclick="setFilter(\''+s+'\')">'+l+'</button>'}).join('');
+  document.getElementById('filterBtns').innerHTML=['All','Pending','Complete'].map(s=>{
+    const lbl=s==='All'?`All (${complaints.length})`:s==='Pending'?`Pending (${p})`:`Complete (${co})`;
+    return`<button class="filter-btn${filterStatus===s?' active':''}" onclick="setFilter('${s}')">${lbl}</button>`;
+  }).join('');
 }
 function setFilter(s){filterStatus=s;currentPage=1;renderAll()}
 
+// ══ TABLE ══
 function renderTable(){
-  const filtered=getFiltered();const totalPages=Math.ceil(filtered.length/PAGE_SIZE);if(currentPage>totalPages)currentPage=totalPages||1;
-  const start=(currentPage-1)*PAGE_SIZE;const page=filtered.slice(start,start+PAGE_SIZE);
-  if(filtered.length===0){document.getElementById('tableBody').innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--text-muted)">No complaints found</td></tr>';document.getElementById('pagination').innerHTML='';return}
-  document.getElementById('tableBody').innerHTML=page.map((c,i)=>`<tr class="${i%2!==0?'row-alt':''}"><td class="serial">${c.serialNo}</td><td class="cell-bold" title="${c.companyName}">${c.companyName}</td><td class="cell-dim">${c.location||'\u2014'}</td><td class="cell-dim">${c.customerName||'\u2014'}</td><td class="cell-mono">${c.jobSerialNo||'\u2014'}</td><td><span class="badge ${c.status==='Pending'?'badge-pending':'badge-complete'}">${c.status==='Pending'?'PENDING':'COMPLETE'}</span></td><td class="cell-dim" style="font-size:12px">${c.plannedDate||'\u2014'}</td><td class="cell-dim" style="font-size:12px">${c.engineerAssigned||'\u2014'}</td><td style="white-space:nowrap"><button class="btn-small btn-view" onclick="viewDetail(${c.id})">View</button> <button class="btn-small btn-edit" onclick="openEditForm(${c.id})">Edit</button> <button class="btn-small btn-del" onclick="deleteComplaint(${c.id})">Del</button></td></tr>`).join('');
-  let ph='<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage<=1?'disabled':'')+'>◀ Prev</button>';
-  ph+='<span class="page-info">Page '+currentPage+' of '+totalPages+' ('+filtered.length+' results)</span>';
-  ph+='<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage>=totalPages?'disabled':'')+'>Next ▶</button>';
+  const filtered=getFiltered();
+  const totalPages=Math.ceil(filtered.length/PAGE_SIZE);
+  if(currentPage>totalPages)currentPage=totalPages||1;
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  if(filtered.length===0){
+    document.getElementById('tableBody').innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--text3);font-size:14px">No complaints found</td></tr>';
+    document.getElementById('pagination').innerHTML='';return;
+  }
+  document.getElementById('tableBody').innerHTML=page.map((c,i)=>`
+    <tr>
+      <td class="cell-serial">${c.serialNo}</td>
+      <td class="cell-bold" title="${c.companyName}">${c.companyName}</td>
+      <td>${c.location||'—'}</td>
+      <td>${c.customerName||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${c.jobSerialNo||'—'}</td>
+      <td><span class="badge ${c.status==='Pending'?'badge-pending':'badge-complete'}"><span class="bdot ${c.status==='Pending'?'pending-dot':''}"></span>${c.status==='Pending'?'Pending':'Complete'}</span></td>
+      <td>${c.plannedDate||'—'}</td>
+      <td>${c.engineerAssigned||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-small btn-view" onclick="viewDetail(${c.id})">View</button>
+        <button class="btn-small btn-edit" onclick="openEditForm(${c.id})" style="margin:0 4px">Edit</button>
+        <button class="btn-small btn-del" onclick="deleteComplaint(${c.id})">Del</button>
+      </td>
+    </tr>`).join('');
+  let ph=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage<=1?'disabled':''}>◀ Prev</button>`;
+  ph+=`<span class="page-info">Page ${currentPage} / ${totalPages} · ${filtered.length} records</span>`;
+  ph+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage>=totalPages?'disabled':''}>Next ▶</button>`;
   document.getElementById('pagination').innerHTML=ph;
 }
-function goPage(p){currentPage=p;renderTable();window.scrollTo({top:document.querySelector('.table-wrap').offsetTop-80,behavior:'smooth'})}
+function goPage(p){currentPage=p;renderTable();document.querySelector('.table-section').scrollIntoView({behavior:'smooth',block:'start'})}
 
-function viewDetail(id){const c=complaints.find(x=>x.id===id);if(!c)return;document.getElementById('detailSerial').textContent=c.serialNo;document.getElementById('detailBadge').innerHTML='<span class="badge '+(c.status==='Pending'?'badge-pending':'badge-complete')+'" style="padding:6px 16px;border-radius:8px;font-size:12px">'+c.status+'</span>';document.getElementById('detailBody').innerHTML=[['Company',c.companyName],['Location',c.location||'\u2014'],['Customer Name',c.customerName||'\u2014'],['Job Serial No',c.jobSerialNo||'\u2014'],['Issue Description',c.issueDescription],['Action Taken',c.actionTaken||'\u2014'],['Planned Date',c.plannedDate||'\u2014'],['Completed Date',c.completedDate||'\u2014'],['Engineer Assigned',c.engineerAssigned||'\u2014'],['Material Requirements',c.materialReq||'\u2014']].map(([l,v])=>'<div class="detail-label">'+l+'</div><div class="detail-value">'+v+'</div>').join('');document.getElementById('detailModal').style.display='flex'}
-function closeDetail(){document.getElementById('detailModal').style.display='none'}
-
-function openNewForm(){editId=null;document.getElementById('formTitle').textContent='Register New Complaint';document.getElementById('formSub').textContent='Fill in all details';document.getElementById('saveBtn2').textContent='Register Complaint';clearForm();document.getElementById('formPanel').style.display='block';setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100)}
-function openEditForm(id){const c=complaints.find(x=>x.id===id);if(!c)return;editId=id;document.getElementById('formTitle').textContent='Edit Complaint';document.getElementById('formSub').textContent='Update details below';document.getElementById('saveBtn2').textContent='Update Complaint';['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{document.getElementById('f_'+k).value=c[k]||''});document.getElementById('formPanel').style.display='block';setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100)}
-function clearForm(){['companyName','customerName','jobSerialNo','materialReq','issueDescription','actionTaken'].forEach(k=>document.getElementById('f_'+k).value='');document.getElementById('f_location').value='';document.getElementById('f_engineerAssigned').value='';document.getElementById('f_plannedDate').value='';document.getElementById('f_completedDate').value='';document.getElementById('f_status').value='Pending'}
-function closeForm(){document.getElementById('formPanel').style.display='none';editId=null}
-function saveComplaint(){const d={};['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{d[k]=document.getElementById('f_'+k).value});if(!d.companyName||!d.issueDescription){notify('\u26A0 Please fill Company Name and Issue');return}if(editId){const idx=complaints.findIndex(c=>c.id===editId);complaints=complaints.map(c=>c.id===editId?{...c,...d}:c);if(idx>=0)updateSheetRow(idx+1,{...complaints[idx],...d});notify('\u2713 Complaint updated')}else{const newC={...d,id:Date.now(),serialNo:nextSerial()};complaints.push(newC);appendToSheet(newC);notify('\u2713 New complaint registered & saved to Sheets')}closeForm();renderAll()}
-function deleteComplaint(id){if(!confirm('Delete this complaint?'))return;complaints=complaints.filter(c=>c.id!==id);notify('\u2713 Complaint removed');renderAll()}
-function exportCSV(){const h=["Serial No","Company","Location","Customer","Job Serial","Issue","Action Taken","Status","Planned Date","Completed Date","Engineer","Material Req"];const rows=complaints.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.jobSerialNo,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.completedDate,c.engineerAssigned,c.materialReq]);const csv=[h,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EMR_TapChangers_Gujarat_'+new Date().toISOString().slice(0,10)+'.csv';a.click();notify('\u2713 CSV exported')}
-
-function testSchedule(){notify('Testing scheduled email...');sendEmailNow()}
+// ══ MATERIAL ══
 function renderMaterial(){
   const items=complaints.filter(c=>c.status==='Pending'&&c.materialReq&&c.materialReq.trim()!=='');
   document.getElementById('materialCount').textContent=items.length+' items';
   if(items.length===0){
-    document.getElementById('materialBody').innerHTML='<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted)">No pending material requirements</td></tr>';
-    return;
+    document.getElementById('materialBody').innerHTML='<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--text3)">No pending material requirements</td></tr>';return;
   }
-  document.getElementById('materialBody').innerHTML=items.map((c,i)=>'<tr style="border-bottom:1px solid var(--border);background:'+(i%2!==0?'rgba(14,14,17,0.45)':'transparent')+'"><td style="padding:10px;font-family:JetBrains Mono,monospace;font-size:11px;color:#F59E0B">'+c.serialNo+'</td><td style="padding:10px;font-weight:600;color:var(--text-primary)">'+c.companyName+'</td><td style="padding:10px;color:var(--text-secondary)">'+(c.location||'\u2014')+'</td><td style="padding:10px;color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.issueDescription+'">'+c.issueDescription+'</td><td style="padding:10px;color:#F59E0B;font-weight:600">'+c.materialReq+'</td><td style="padding:10px;color:var(--text-secondary)">'+(c.engineerAssigned||'\u2014')+'</td></tr>').join('');
+  document.getElementById('materialBody').innerHTML=items.map((c,i)=>`
+    <tr style="${i%2!==0?'background:#fffbee':''}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${c.serialNo}</td>
+      <td style="font-weight:700;color:var(--dark)">${c.companyName}</td>
+      <td>${c.location||'—'}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.issueDescription}">${c.issueDescription}</td>
+      <td style="color:var(--accent-dark);font-weight:700">${c.materialReq}</td>
+      <td>${c.engineerAssigned||'—'}</td>
+    </tr>`).join('');
 }
-function renderAll(){renderStats();renderWorkload();renderMap();renderFilters();renderTable();renderMaterial()}
-// Load data from Google Sheets on page load
-loadFromSheets();
+
+// ══ VIEW DETAIL ══
+function viewDetail(id){
+  const c=complaints.find(x=>x.id===id);if(!c)return;
+  document.getElementById('detailSerial').textContent=c.serialNo;
+  document.getElementById('detailBadge').innerHTML=`<span class="badge ${c.status==='Pending'?'badge-pending':'badge-complete'}" style="padding:5px 14px"><span class="bdot"></span>${c.status}</span>`;
+  document.getElementById('detailBody').innerHTML=[
+    ['Company',c.companyName],['Location',c.location||'—'],['Customer Name',c.customerName||'—'],
+    ['Job Serial No',c.jobSerialNo||'—'],['Issue Description',c.issueDescription],
+    ['Action Taken',c.actionTaken||'—'],['Planned Date',c.plannedDate||'—'],
+    ['Completed Date',c.completedDate||'—'],['Engineer Assigned',c.engineerAssigned||'—'],
+    ['Material Requirements',c.materialReq||'—']
+  ].map(([l,v])=>`<div class="detail-label">${l}</div><div class="detail-value">${v}</div>`).join('');
+  document.getElementById('detailModal').style.display='flex';
+}
+function closeDetail(){document.getElementById('detailModal').style.display='none'}
+
+// ══ FORM ══
+function openNewForm(){
+  editId=null;
+  document.getElementById('formTitle').textContent='Register New Complaint';
+  document.getElementById('formSub').textContent='Fill in all details to register a new OLTC service complaint';
+  document.getElementById('saveBtn2').textContent='Register Complaint';
+  clearForm();document.getElementById('formPanel').style.display='block';
+  setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100);
+}
+function openEditForm(id){
+  const c=complaints.find(x=>x.id===id);if(!c)return;
+  editId=id;
+  document.getElementById('formTitle').textContent='Edit Complaint';
+  document.getElementById('formSub').textContent='Update the complaint details below';
+  document.getElementById('saveBtn2').textContent='Update Complaint';
+  ['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{document.getElementById('f_'+k).value=c[k]||''});
+  document.getElementById('formPanel').style.display='block';
+  setTimeout(()=>document.getElementById('formPanel').scrollIntoView({behavior:'smooth'}),100);
+}
+function clearForm(){
+  ['companyName','customerName','jobSerialNo','materialReq','issueDescription','actionTaken'].forEach(k=>document.getElementById('f_'+k).value='');
+  document.getElementById('f_location').value='';
+  document.getElementById('f_engineerAssigned').value='';
+  document.getElementById('f_plannedDate').value='';
+  document.getElementById('f_completedDate').value='';
+  document.getElementById('f_status').value='Pending';
+}
+function closeForm(){document.getElementById('formPanel').style.display='none';editId=null}
+
+function saveComplaint(){
+  const d={};
+  ['companyName','location','customerName','jobSerialNo','engineerAssigned','plannedDate','completedDate','materialReq','status','issueDescription','actionTaken'].forEach(k=>{d[k]=document.getElementById('f_'+k).value});
+  if(!d.companyName||!d.issueDescription){notify('⚠ Company Name and Issue Description are required');return}
+  // Block Complete unless MOM + (MK16 OR OLTC Overhauling checkbox) are done
+  if(d.status==='Complete'&&editId){
+    const c=complaints.find(x=>x.id===editId);
+    if(c){
+      const ds=getDocStatus();
+      const docData=ds[c.serialNo]||{};
+      const momOk=!!(docData.mom&&docData.mom.uploaded);
+      const mk16Ok=!!(docData.mk16&&docData.mk16.uploaded);
+      const oltcOk=!!docData.oltcOverhauling;
+      const secondOk=mk16Ok||oltcOk; // MK16 uploaded OR OLTC checkbox ticked
+      if(!momOk||!secondOk){
+        let msg='⚠ Cannot mark Complete — ';
+        if(!momOk&&!secondOk){
+          msg+='please upload MOM and either upload MK16 or tick OLTC Overhauling';
+        }else if(!momOk){
+          msg+='please upload MOM document first';
+        }else{
+          msg+='please either upload MK16 or tick the OLTC Overhauling checkbox';
+        }
+        notify(msg);
+        return;
+      }
+    }
+  }
+  if(editId){
+    const idx=complaints.findIndex(c=>c.id===editId);
+    complaints=complaints.map(c=>c.id===editId?{...c,...d}:c);
+    if(idx>=0)updateSheetRow(idx+1,{...complaints[idx],...d});
+    if(d.status==='Complete'){
+      // Save override so Sync doesn't revert it
+      try{
+        const ov=JSON.parse(localStorage.getItem('emr_status_override')||'{}');
+        const comp=complaints.find(x=>x.id===editId);
+        if(comp)ov[comp.serialNo]='Complete';
+        localStorage.setItem('emr_status_override',JSON.stringify(ov));
+      }catch(e){}
+      notify('✅ Complaint marked as Completed!');
+      filterStatus='Complete'; // auto-switch filter so user sees it immediately
+    }else{
+      notify('✓ Complaint updated');
+    }
+  }else{
+    const newC={id:Date.now(),...d,serialNo:nextSerial()};
+    complaints.push(newC);
+    appendToSheet(newC);
+    notify('✓ Complaint registered');
+  }
+  closeForm();renderAll();
+}
+function deleteComplaint(id){
+  if(!confirm('Delete this complaint?'))return;
+  complaints=complaints.filter(c=>c.id!==id);
+  notify('Complaint deleted');renderAll();
+}
+
+// ══ CSV EXPORT ══
+function exportCSV(){
+  if(!complaints.length){notify('No data to export');return}
+  const h=['Serial No','Company','Location','Customer','Job No','Issue','Action Taken','Status','Planned Date','Completed Date','Engineer','Material Req'];
+  const rows=complaints.map(c=>[c.serialNo,c.companyName,c.location,c.customerName,c.jobSerialNo,c.issueDescription,c.actionTaken,c.status,c.plannedDate,c.completedDate,c.engineerAssigned,c.materialReq].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv=[h.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='EMR_Complaints_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();notify('✓ CSV exported');
+}
+
+// ══ DEBOUNCE HELPER ══
+let _searchTimer=null;
+function debouncedRender(){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(()=>renderAll(),280);
+}
+
+// ══ RENDER ALL (no map — map renders once separately) ══
+function renderAll(){
+  renderStats();
+  renderDocCard();
+  renderWorkload();
+  renderFilters();
+  renderTable();
+  renderMaterial();
+}
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded',()=>{
+  renderAll();
+  renderMap(); // map renders ONCE on load
+  loadFromSheets();
+});
 </script>
 </body>
 </html>
